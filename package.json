@@ -4,7 +4,8 @@
   "description": "This is backend of videoshare project",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon ./src/server.js"
+    "dev": "nodemon ./src/server.js",
+    "start": "node ./src/server.js"
   },
   "keywords": [
     "videoshare",
