@@ -20,9 +20,14 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
+    profilePicture: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     hash_password: {
       type: String,
-      required: true,
+      default: "",
     },
     role: {
       type: String,
@@ -30,6 +35,10 @@ const userSchema = new mongoose.Schema(
       default: "user",
     },
     jobRole: {
+      type: String,
+      default: "",
+    },
+    videoGoal: {
       type: String,
       default: "",
     },

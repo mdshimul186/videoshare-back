@@ -6,6 +6,8 @@ const {
   editaccountsettings,
   confirmpwd,
   editPassword,
+  editprofileimage,
+  googleAuth,
 } = require("../controller/auth");
 const { requireSignin } = require("../common-middleware");
 const {
@@ -14,12 +16,13 @@ const {
   validateSigninRequest,
   validateEditEmailRequest,
 } = require("../validators/auth");
+const upload = require("../common-middleware/imageUpload");
 const router = express.Router();
 
 router.post("/register", validateSignupRequest, isRequestValidated, signup);
 router.post("/login", validateSigninRequest, isRequestValidated, signin);
-router.post("/user/verify", verify);
-router.post(
+router.post("/verify", verify);
+router.patch(
   "/editaccountsettings",
   requireSignin,
   validateEditEmailRequest,
@@ -27,7 +30,15 @@ router.post(
   editaccountsettings
 );
 router.post("/confirmpwd", requireSignin, confirmpwd);
-router.post("/editpassword", requireSignin, editPassword);
+router.patch("/editpassword", requireSignin, editPassword);
+router.put(
+  "/editprofileimage",
+  requireSignin,
+  upload.single("profileimage"),
+  editprofileimage
+);
+
+router.post("/auth/google", googleAuth);
 
 // router.post('/profile', requireSignin, (req, res) => {
 //     res.status(200).json({ user: 'profile' })

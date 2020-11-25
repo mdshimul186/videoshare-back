@@ -7,6 +7,11 @@ const cors = require("cors");
 
 //routes
 const authRoutes = require("./routes/auth");
+const themeRoutes = require("./routes/theme");
+const videoRoutes = require("./routes/video");
+const scriptRoutes = require("./routes/script");
+const brandingRoutes = require("./routes/branding");
+const templateRoutes = require("./routes/template");
 
 //environment variable or you can say constants
 env.config();
@@ -27,7 +32,12 @@ mongoose
 app.use(cors());
 app.use(express.json());
 app.use("/public", express.static(path.join(__dirname, "uploads")));
-app.use("/api", authRoutes);
+app.use("/api/user", authRoutes);
+app.use("/api/theme", themeRoutes);
+app.use("/api/video", videoRoutes);
+app.use("/api/script", scriptRoutes);
+app.use("/api/branding", brandingRoutes);
+app.use("/api/template", templateRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
