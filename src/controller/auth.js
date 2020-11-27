@@ -19,6 +19,12 @@ exports.signup = (req, res) => {
     const _user = new User({
       email,
       hash_password,
+      firstName:"",
+      lastName:"",
+      jobRole:"",
+    role:"user" ,
+    videoGoal:""
+      
     });
 
     _user.save((error, data) => {
@@ -61,7 +67,7 @@ exports.signin = (req, res) => {
         res.status(200).json({
           success: true,
           token: "Bearer " + token,
-          user: { _id, firstName, lastName, email, role, jobRole },
+          user: { _id, firstName, lastName, email, role, jobRole ,videoGoal,profilePicture},
         });
       });
     } else {
