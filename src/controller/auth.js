@@ -62,7 +62,7 @@ exports.signin = (req, res) => {
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
           expiresIn: "1d",
         });
-        const { _id, email, firstName, lastName, role, jobRole } = user;
+        const {_id, firstName, lastName, email, role, jobRole ,videoGoal,profilePicture } = user;
         //res.cookie("videoshare-token", token, { expiresIn: "1d" });
         res.status(200).json({
           success: true,
