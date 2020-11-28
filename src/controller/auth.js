@@ -1,6 +1,6 @@
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const shortid = require("shortid");
 const googleOAuth = require("../utils/googleOAuth");
 const { OAuth2Client } = require("google-auth-library");
@@ -59,7 +59,7 @@ exports.signin = (req, res) => {
           return res.status(400).json({ error: "invalid credentials" });
         }
 
-        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+        const token = jwt.sign({ _id: user._id,role:user.role }, process.env.JWT_SECRET, {
           expiresIn: "1d",
         });
         const {_id, firstName, lastName, email, role, jobRole ,videoGoal,profilePicture } = user;
@@ -95,12 +95,40 @@ exports.verify = (req, res) => {
 };
 
 exports.editaccountsettings = (req, res) => {
-  const { firstName, lastName, email, jobRole } = req.body;
+  const { firstName, lastName, email, jobRole ,videoGoal} = req.body;
+  let option = {}
+
+  if(firstName){
+    option.firstName = firstName
+  }
+
+  if(lastName){
+    option.lastName = lastName
+  }
+
+  if(email){
+    option.email = email
+  }
+
+  if(jobRole){
+    option.jobRole = jobRole
+  }
+
+  if(videoGoal){
+    option.videoGoal = videoGoal
+  }
+
+ 
+  if (Object.keys(option).length == 0) {
+    return res.status(400).json({ error: "Nothing to update" });
+  }
+
+
   User.findById(req.user._id).then((user) => {
-    if (user.email === email) {
+    if (email && (user.email === email)) {
       User.findByIdAndUpdate(
         user._id,
-        { $set: { firstName, lastName, jobRole } },
+        { $set: option },
         { new: true }
       )
         .select("-hash_password")
@@ -108,15 +136,15 @@ exports.editaccountsettings = (req, res) => {
           res.status(200).json({ user: updated, success: true });
         });
     } else {
-      User.findOne({ email: email }).then((user) => {
-        if (user) {
+      User.findOne({ email: email }).then((user2) => {
+        if (user2) {
           return res
             .status(400)
             .json({ error: "Email already taken, try another!" });
         } else {
           User.findByIdAndUpdate(
             user._id,
-            { $set: { firstName, lastName, email, jobRole } },
+            { $set:option },
             { new: true }
           )
             .select("-hash_password")

@@ -35,15 +35,26 @@ exports.requireSignin = (req, res, next) => {
 };
 
 exports.userMiddleware = (req, res, next) => {
-  if (req.user.role !== "user") {
-    return res.status(401).json({ message: "User access denied" });
+  if (req.user.role === "user") {
+    return  next();
+  }else{
+    return res.status(401).json({ message: "access denied" });
   }
-  next();
+ 
 };
 
 exports.adminMiddleware = (req, res, next) => {
-  if (req.user.role !== "admin") {
-    return res.status(401).json({ message: "Admin access denied" });
+  if (req.user.role === "admin") {
+    return  next();
+  }else{
+    return res.status(401).json({ message: "admin access denied" });
   }
-  next();
+};
+
+exports.masterUserMiddleware = (req, res, next) => {
+  if (req.user.role === "master") {
+    return  next();
+  }else{
+    return res.status(401).json({ message: "master user access denied" });
+  }
 };

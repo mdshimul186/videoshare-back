@@ -4,6 +4,7 @@ const app = express();
 const mongoose = require("mongoose");
 const path = require("path");
 const cors = require("cors");
+const aws = require("aws-sdk");
 
 //routes
 const authRoutes = require("./routes/auth");
@@ -12,9 +13,18 @@ const videoRoutes = require("./routes/video");
 const scriptRoutes = require("./routes/script");
 const brandingRoutes = require("./routes/branding");
 const templateRoutes = require("./routes/template");
+const adminRoutes = require("./routes/admin/admin");
 
 //environment variable or you can say constants
 env.config();
+
+//aws config
+
+aws.config.update({
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  region: "ap-southeast-1",
+});
 
 // mongodb connection
 
@@ -38,6 +48,7 @@ app.use("/api/video", videoRoutes);
 app.use("/api/script", scriptRoutes);
 app.use("/api/branding", brandingRoutes);
 app.use("/api/template", templateRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
