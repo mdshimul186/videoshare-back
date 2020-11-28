@@ -98,11 +98,11 @@ exports.editaccountsettings = (req, res) => {
   const { firstName, lastName, email, jobRole ,videoGoal} = req.body;
   let option = {}
 
-  if(firstName){
+  if(firstName !== undefined){
     option.firstName = firstName
   }
 
-  if(lastName){
+  if(lastName !== undefined){
     option.lastName = lastName
   }
 
@@ -110,13 +110,14 @@ exports.editaccountsettings = (req, res) => {
     option.email = email
   }
 
-  if(jobRole){
+  if(jobRole !== undefined){
     option.jobRole = jobRole
   }
 
-  if(videoGoal){
+  if(videoGoal !== undefined){
     option.videoGoal = videoGoal
   }
+ 
 
  
   if (Object.keys(option).length == 0) {
