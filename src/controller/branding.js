@@ -4,11 +4,11 @@ exports.createBranding = (req, res) => {
   let firstLogoURL = req.files.firstLogo && req.files.firstLogo[0].location;
   let secondLogoURL = req.files.secondLogo && req.files.secondLogo[0].location;
   const {
-    logoName,
-    firstHEX,
-    firstRGB,
-    secondHEX,
-    secondRGB,
+    brandingName,
+    textNameBackgroundHEX,
+    textNameBackgroundRGB,
+    textRoleBackgroundHEX,
+    textRoleBackgroundRGB,
     textNameHEX,
     textNameRGB,
     textRoleHEX,
@@ -20,9 +20,11 @@ exports.createBranding = (req, res) => {
     fontName,
   } = req.body;
 
-  if (!firstLogoURL) {
-    return res.status(400).json({ error: "all fields are required" });
+  if (!brandingName) {
+    return res.status(400).json({ error: "branding name is required" });
   }
+
+  /*
   if (!secondLogoURL) {
     return res.status(400).json({ error: "all fields are required" });
   }
@@ -70,23 +72,25 @@ exports.createBranding = (req, res) => {
     return res.status(400).json({ error: "all fields are required" });
   }
 
+  */
+
   let _branding = new Branding({
-    logoName,
-    firstHEX,
-    firstRGB,
-    secondHEX,
-    secondRGB,
-    textNameHEX,
-    textNameRGB,
-    textRoleHEX,
-    textRoleRGB,
-    firstBackgroundHEX,
-    firstBackgroundRGB,
-    secondBackgroundHEX,
-    secondBackgroundRGB,
-    fontName,
-    firstLogoURL,
-    secondLogoURL,
+    brandingName,
+    textNameBackgroundHEX:textNameBackgroundHEX || '',
+    textNameBackgroundRGB:textNameBackgroundRGB || '',
+    textRoleBackgroundHEX:textRoleBackgroundHEX || '',
+    textRoleBackgroundRGB:textRoleBackgroundRGB || '',
+    textNameHEX:textNameHEX || "",
+    textNameRGB:textNameRGB ||"",
+    textRoleHEX:textRoleHEX || '',
+    textRoleRGB:textRoleRGB || "",
+    firstBackgroundHEX:firstBackgroundHEX || '',
+    firstBackgroundRGB:firstBackgroundRGB || '',
+    secondBackgroundHEX:secondBackgroundHEX || '',
+    secondBackgroundRGB: secondBackgroundRGB || '',
+    fontName : fontName || '',
+    firstLogoURL : firstLogoURL || '',
+    secondLogoURL:secondLogoURL || '',
     ownerId: req.user._id,
   });
   _branding.save();
@@ -144,11 +148,11 @@ exports.editBranding = (req, res) => {
   let firstLogoURL = req.files.firstLogo && req.files.firstLogo[0].location;
   let secondLogoURL = req.files.secondLogo && req.files.secondLogo[0].location;
   const {
-    logoName,
-    firstHEX,
-    firstRGB,
-    secondHEX,
-    secondRGB,
+    brandingName,
+    textNameBackgroundHEX,
+    textNameBackgroundRGB,
+    textRoleBackgroundHEX,
+    textRoleBackgroundRGB,
     textNameHEX,
     textNameRGB,
     textRoleHEX,
@@ -162,20 +166,20 @@ exports.editBranding = (req, res) => {
 
   let option = {};
 
-  if (logoName) {
-    option.logoName = logoName;
+  if (brandingName) {
+    option.brandingName = brandingName;
   }
-  if (firstHEX) {
-    option.firstHEX = firstHEX;
+  if (textNameBackgroundHEX) {
+    option.textNameBackgroundHEX = textNameBackgroundHEX;
   }
-  if (firstRGB) {
-    option.firstRGB = firstRGB;
+  if (textNameBackgroundRGB) {
+    option.textNameBackgroundRGB = textNameBackgroundRGB;
   }
-  if (secondHEX) {
-    option.secondHEX = secondHEX;
+  if (textRoleBackgroundHEX) {
+    option.textRoleBackgroundHEX = textRoleBackgroundHEX;
   }
-  if (secondRGB) {
-    option.secondRGB = secondRGB;
+  if (textRoleBackgroundRGB) {
+    option.textRoleBackgroundRGB = textRoleBackgroundRGB;
   }
   if (textNameHEX) {
     option.textNameHEX = textNameHEX;
@@ -197,6 +201,9 @@ exports.editBranding = (req, res) => {
   }
   if (secondBackgroundHEX) {
     option.secondBackgroundHEX = secondBackgroundHEX;
+  }
+  if (secondBackgroundRGB) {
+    option.secondBackgroundRGB = secondBackgroundRGB;
   }
   if (fontName) {
     option.fontName = fontName;

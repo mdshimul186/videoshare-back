@@ -7,6 +7,11 @@ const templateSchema = new mongoose.Schema(
       trim: true,
       required: true,
     },
+    description:{
+      type: String,
+      trim: true,
+      default:""
+    },
     options: [
       {
         title: { type: String, required: true },
@@ -18,8 +23,12 @@ const templateSchema = new mongoose.Schema(
     scriptId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Script",
-      required: true,
     },
+    type:{
+      type:String,
+      enum: ["individual", "default"],
+      default: "individual",
+    }
   },
   { timestamps: true }
 );

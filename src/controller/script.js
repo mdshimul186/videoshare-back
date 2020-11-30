@@ -75,10 +75,11 @@ exports.getScriptInfo = (req, res) => {
 };
 
 exports.addSummary = (req, res) => {
-  const { title, optionTitle, optionPosition, optionValue } = req.body;
+  const { title,description, optionTitle, optionPosition, optionValue } = req.body;
   const scriptId = req.params.scriptid;
   let _summary = new Summary({
     title,
+    description,
     options: {
       title: optionTitle,
       position: optionPosition,
@@ -132,16 +133,18 @@ exports.deleteSummary = (req, res) => {
 };
 
 exports.addTemplate = (req, res) => {
-  const { title, optionTitle, optionPosition, optionValue } = req.body;
+  const { title,description, optionTitle, optionPosition, optionValue } = req.body;
   const scriptId = req.params.scriptid;
   let _template = new Template({
     title,
+    description,
     options: {
       title: optionTitle,
       position: optionPosition,
       value: optionValue,
     },
     scriptId,
+
   });
   _template
     .save()
@@ -212,3 +215,68 @@ exports.deleteScript = (req, res) => {
       res.status(400).json({ error: "Something went wrong" });
     });
 };
+
+
+exports.createDefaultTemplate=(req,res)=>{
+  const { title,description, optionTitle, optionPosition, optionValue } = req.body;
+  let _template = new Template({
+    title,
+    description:description || '',
+    options: {
+      title: optionTitle,
+      position: optionPosition,
+      value: optionValue,
+    },
+    type:"default"
+    
+  });
+  _template
+    .save()
+    .then((template) => {
+      /*
+      Script.findByIdAndUpdate(
+        scriptId,
+        { $push: { template: template._id } },
+        { new: true }
+      )
+        .populate("ownerId", "-hash_password")
+        .populate("summary")
+        .populate("template")
+        .then((script) => {
+          res.status(200).json({ success: true, script });
+        })
+        .catch((err) => {
+          res.status(400).json({ error: "Something went wrong" });
+        });
+        */
+       res.status(200).json({ success: true, template });
+
+
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json({ error: "Something went wrong" });
+    });
+}
+
+exports.getAllDefaultTemplate=(req,res)=>{
+  Template.find({type:"default"})
+  .then(template=>{
+    res.status(200).json({ success: true, template });
+
+  })
+  .catch((err) => {
+    res.status(400).json({ error: "Something went wrong" });
+  });
+}
+
+exports.deleteDefaultTemplate=(req,res)=>{
+  let templateId = req.params.templateid
+  Template.findByIdAndDelete(templateId)
+  .then(template=>{
+    res.status(200).json({success:true,message:"template deleted successfully"})
+  })
+  .catch((err) => {
+    res.status(400).json({ error: "Something went wrong" });
+  });
+}

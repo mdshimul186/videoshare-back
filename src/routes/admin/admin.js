@@ -19,21 +19,13 @@ let transporter = nodemailer.createTransport({
 
 
 
-
-
-
-
-
-
 const express = require("express");
-//const {} = require("../controller/admin/admin");
+const {createMasterUser,getMasterUser,deleteMasterUser} = require("../../controller/admin/admin");
 const { requireSignin,adminMiddleware } = require("../../common-middleware");
-//const {
-//  validateSignupRequest,
-//  isRequestValidated,
-//  validateSigninRequest,
-//  validateEditEmailRequest,
-//} = require("../validators/auth");
+const {
+  validateCreateMasterUser,
+  isRequestValidated,
+} = require("../../validators/admin");
 //const upload = require("../common-middleware/imageUpload");
 const router = express.Router();
 
@@ -44,50 +36,9 @@ router.get('/admin',requireSignin,adminMiddleware,(req,res)=>{
 })
 
 
+router.post('/createmasteruser',requireSignin,adminMiddleware,validateCreateMasterUser,isRequestValidated,createMasterUser)
 
-router.post("/sendemail",requireSignin,(req,res)=>{
- // var mailOptions = {
- //   from: 'videoshare.info@gmail.com',
-  //  to: '186mdshimul@gmail.com.com',
-  //  text: 'This is some text',
- //   html: '<b>This is some HTML</b>',
- // };
-
-
-
-  //nodeMailerTransporter.sendMail(mailOptions, (error, info) => {
-   // if (error) {
-   //   console.log(error);
-   //   res.status(error.responseCode).send(error.response);
-  //  } else {
-   //   console.log('Message sent: ' + info.response);
-   //   res.status(200).send(info);
-   // }
- // });
-
- transporter.sendMail({
-  from: 'info.videoshare@gmail.com',
-  to: 'shimul186@gmail.com',
-  subject: 'Message',
-  text: 'I hope this message gets sent!!',
- // ses: { // optional extra arguments for SendRawEmail
-      //Tags: [{
-       //   Name: 'tag name',
-       //   Value: 'tag value'
-     // }]
-  //}
-}, (err, info) => {
-  console.log(info);
-  console.log(err);
-});
-
-
-
- 
-})
-
-// router.post('/profile', requireSignin, (req, res) => {
-//     res.status(200).json({ user: 'profile' })
-// });
+router.get('/getmasteruser',requireSignin,adminMiddleware,getMasterUser)
+router.delete('/deletemasteruser/:userid',requireSignin,adminMiddleware,deleteMasterUser)
 
 module.exports = router;

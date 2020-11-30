@@ -4,6 +4,22 @@ const bcrypt = require("bcryptjs");
 const shortid = require("shortid");
 const googleOAuth = require("../utils/googleOAuth");
 const { OAuth2Client } = require("google-auth-library");
+let nodemailer = require('nodemailer');
+let aws = require('aws-sdk');
+
+// configure AWS SDK
+aws.config.update({
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  region: "ap-southeast-1",
+});
+
+// create Nodemailer SES transporter
+let transporter = nodemailer.createTransport({
+    SES: new aws.SES({
+        apiVersion: '2010-12-01'
+    })
+});
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -19,12 +35,26 @@ exports.signup = (req, res) => {
     const _user = new User({
       email,
       hash_password,
-      firstName:"",
-      lastName:"",
-      jobRole:"",
-    role:"user" ,
-    videoGoal:""
-      
+      firstName: "",
+      lastName: "",
+      jobRole: "",
+      role: "master",
+      videoGoal: "",
+      approval: {
+        isApproved: true,
+        trxId: ''
+      },
+      accessType: {
+        branding1: false,
+        branding2: false,
+        branding3: false,
+        branding4: false,
+        script: false,
+        template: false,
+        fullAccess: false
+      },
+      resetPassToken:""
+
     });
 
     _user.save((error, data) => {
@@ -48,6 +78,7 @@ exports.signup = (req, res) => {
 exports.signin = (req, res) => {
   User.findOne({ email: req.body.email }).exec((error, user) => {
     if (error) return res.status(400).json({ error });
+    
     if (user) {
       bcrypt.compare(req.body.password, user.hash_password, (err, result) => {
         if (err) {
@@ -59,15 +90,17 @@ exports.signin = (req, res) => {
           return res.status(400).json({ error: "invalid credentials" });
         }
 
-        const token = jwt.sign({ _id: user._id,role:user.role }, process.env.JWT_SECRET, {
+        if (user.approval.isApproved === false) return res.status(400).json({ error:"Your account is not approved yet" });
+
+        const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, {
           expiresIn: "1d",
         });
-        const {_id, firstName, lastName, email, role, jobRole ,videoGoal,profilePicture } = user;
+        const {  _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture ,createdBy,approval,accessType,resetPassToken } = user;
         //res.cookie("videoshare-token", token, { expiresIn: "1d" });
         res.status(200).json({
           success: true,
           token: "Bearer " + token,
-          user: { _id, firstName, lastName, email, role, jobRole ,videoGoal,profilePicture},
+          user: { _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture ,createdBy,approval,accessType,resetPassToken},
         });
       });
     } else {
@@ -81,8 +114,10 @@ exports.verify = (req, res) => {
     const token = req.headers.authorization.split(" ")[1];
     jwt.verify(token, process.env.JWT_SECRET, function (err, user) {
       if (err) {
-        return res.status(401).json({ error: "token expired" });
+        return res.status(401).json({ error: "token expired or invalid" });
       }
+
+      //if (user.approval.isApproved === false) return res.status(400).json({ error:"Your account is not approved yet" });
       User.findById(user._id)
         .select("-hash_password")
         .then((user) => {
@@ -95,31 +130,31 @@ exports.verify = (req, res) => {
 };
 
 exports.editaccountsettings = (req, res) => {
-  const { firstName, lastName, email, jobRole ,videoGoal} = req.body;
+  const { firstName, lastName, email, jobRole, videoGoal } = req.body;
   let option = {}
 
-  if(firstName !== undefined){
+  if (firstName !== undefined) {
     option.firstName = firstName
   }
 
-  if(lastName !== undefined){
+  if (lastName !== undefined) {
     option.lastName = lastName
   }
 
-  if(email){
+  if (email) {
     option.email = email
   }
 
-  if(jobRole !== undefined){
+  if (jobRole !== undefined) {
     option.jobRole = jobRole
   }
 
-  if(videoGoal !== undefined){
+  if (videoGoal !== undefined) {
     option.videoGoal = videoGoal
   }
- 
 
- 
+
+
   if (Object.keys(option).length == 0) {
     return res.status(400).json({ error: "Nothing to update" });
   }
@@ -145,7 +180,7 @@ exports.editaccountsettings = (req, res) => {
         } else {
           User.findByIdAndUpdate(
             user._id,
-            { $set:option },
+            { $set: option },
             { new: true }
           )
             .select("-hash_password")
@@ -270,8 +305,9 @@ exports.googleAuth = (req, res) => {
     .then((response) => {
       if (response.payload.email_verified) {
         User.findOne({ email: response.payload.email }).then((user) => {
+          if (user.approval.isApproved === false) return res.status(400).json({ error:"Your account is not approved yet" });
           if (user) {
-            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+            const token = jwt.sign({ _id: user._id,role:user.role }, process.env.JWT_SECRET, {
               expiresIn: "1d",
             });
             const { _id, email, firstName, lastName, role, jobRole } = user;
@@ -317,3 +353,41 @@ exports.googleAuth = (req, res) => {
       }
     });
 };
+
+
+exports.forgotPassword=(req,res)=>{
+  const {email} = req.body
+  User.findOne({email})
+  .then(user=>{
+    if(!user){
+      return res.status(404).json({error:"No user found with this email"})
+    }
+    jwt.sign({ _id: user._id, email: user.email }, process.env.JWT_SECRET_RESET_PASSWORD, {expiresIn: "20m"},(err,token)=>{
+      if(err){
+        return res.status(400).json({error:"something went wrong"})
+      }
+      User.findByIdAndUpdate(user._id,{$set:{resetPassToken:token}})
+      .then(usernext=>{
+        transporter.sendMail({
+          from: 'info.videoshare@gmail.com',
+          to: usernext.email,
+          subject: 'Reset Password',
+          html:` <p>Click this <a href="${process.env.CLIENT_URL}/resetpassword?token=${token}">Link</a> and follow the instruction. Token validity 20 minute</p>`,
+        }, (err, info) => {
+          console.log(info);
+          //console.log(err);
+          if(err){
+            return res.status(400).json({error:"something went wrong"})
+          }
+          return res.status(200).json({
+              success: true,
+              message: "email send succesfully",
+            });
+        });
+      })
+    });
+
+    
+
+  })
+}

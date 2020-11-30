@@ -7,6 +7,11 @@ const summarySchema = new mongoose.Schema(
       trim: true,
       required: true,
     },
+    description:{
+      type: String,
+      trim: true,
+      default:""
+    },
     options: [
       {
         title: { type: String, required: true },

@@ -44,6 +44,33 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    createdBy:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    approval:{
+      isApproved:{type:Boolean,default:false},
+      trxId:{type:String,default:""}
+    },
+    accessType:{
+      branding1:{type:Boolean,default:false},
+      branding2:{type:Boolean,default:false},
+      branding3:{type:Boolean,default:false},
+      branding4:{type:Boolean,default:false},
+      script:{type:Boolean,default:false},
+      template:{type:Boolean,default:false},
+      fullAccess:{type:Boolean,default:false}
+    },
+    resetPassToken:{
+      type: String,
+      default: "",
+    },
+    branding:{
+      branding1:{type: mongoose.Schema.Types.ObjectId,ref: "Branding"},
+      branding2:{type: mongoose.Schema.Types.ObjectId,ref: "Branding"},
+      branding3:{type: mongoose.Schema.Types.ObjectId,ref: "Branding"},
+      branding4:{type: mongoose.Schema.Types.ObjectId,ref: "Branding"},
+    }
   },
   { timestamps: true }
 );

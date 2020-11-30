@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const brandingSchema = new mongoose.Schema(
   {
-    logoName: {
+    brandingName: {
       type: String,
       trim: true,
       required: true,
@@ -10,77 +10,77 @@ const brandingSchema = new mongoose.Schema(
     firstLogoURL: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
     secondLogoURL: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
-    firstHEX: {
+    textNameBackgroundHEX: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
-    firstRGB: {
+    textNameBackgroundRGB: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
-    secondHEX: {
+    textRoleBackgroundHEX: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
-    secondRGB: {
+    textRoleBackgroundRGB: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
     textNameHEX: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
     textNameRGB: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
     textRoleHEX: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
     textRoleRGB: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
     firstBackgroundHEX: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
     firstBackgroundRGB: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
     secondBackgroundHEX: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
     secondBackgroundRGB: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
     fontName: {
       type: String,
       trim: true,
-      required: true,
+      default: ""
     },
     ownerId: {
       type: mongoose.Schema.Types.ObjectId,

@@ -14,6 +14,7 @@ const scriptRoutes = require("./routes/script");
 const brandingRoutes = require("./routes/branding");
 const templateRoutes = require("./routes/template");
 const adminRoutes = require("./routes/admin/admin");
+const masterRoutes = require("./routes/master/master");
 
 //environment variable or you can say constants
 env.config();
@@ -49,6 +50,7 @@ app.use("/api/script", scriptRoutes);
 app.use("/api/branding", brandingRoutes);
 app.use("/api/template", templateRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/master", masterRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
