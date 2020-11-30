@@ -272,11 +272,22 @@ exports.getAllDefaultTemplate=(req,res)=>{
 
 exports.deleteDefaultTemplate=(req,res)=>{
   let templateId = req.params.templateid
-  Template.findByIdAndDelete(templateId)
+  Template.findById(templateId)
   .then(template=>{
-    res.status(200).json({success:true,message:"template deleted successfully"})
+    if(template.type === 'default'){
+      Template.findByIdAndDelete(templateId)
+      .then(template=>{
+        res.status(200).json({success:true,message:"template deleted successfully"})
+      })
+      .catch((err) => {
+        res.status(400).json({ error: "Something went wrong" });
+      });
+    }else{
+      res.status(400).json({ error: "This not a default template" });
+    }
   })
   .catch((err) => {
     res.status(400).json({ error: "Something went wrong" });
   });
+  
 }
