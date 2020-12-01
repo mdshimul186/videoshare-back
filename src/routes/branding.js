@@ -12,9 +12,9 @@ const { requireSignin } = require("../common-middleware");
 const upload = require("../common-middleware/imageUpload");
 const router = express.Router();
 
-router.get("/getbranding/:ownerid", getBranding);
+router.get("/getbranding/:ownerid",requireSignin, getBranding);
 router.get("/getmybranding", requireSignin, getMyBranding);
-router.get("/getbrandinginfo/:brandingid", getBrandingInfo);
+router.get("/getbrandinginfo/:brandingid",requireSignin, getBrandingInfo);
 router.post(
   "/createbranding",
   requireSignin,

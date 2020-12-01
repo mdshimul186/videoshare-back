@@ -1,4 +1,5 @@
 const Branding = require("../models/branding.model");
+const User = require("../models/user.model");
 
 exports.createBranding = (req, res) => {
   let firstLogoURL = req.files.firstLogo && req.files.firstLogo[0].location;
@@ -76,21 +77,21 @@ exports.createBranding = (req, res) => {
 
   let _branding = new Branding({
     brandingName,
-    textNameBackgroundHEX:textNameBackgroundHEX || '',
-    textNameBackgroundRGB:textNameBackgroundRGB || '',
-    textRoleBackgroundHEX:textRoleBackgroundHEX || '',
-    textRoleBackgroundRGB:textRoleBackgroundRGB || '',
-    textNameHEX:textNameHEX || "",
-    textNameRGB:textNameRGB ||"",
-    textRoleHEX:textRoleHEX || '',
-    textRoleRGB:textRoleRGB || "",
-    firstBackgroundHEX:firstBackgroundHEX || '',
-    firstBackgroundRGB:firstBackgroundRGB || '',
-    secondBackgroundHEX:secondBackgroundHEX || '',
+    textNameBackgroundHEX: textNameBackgroundHEX || '',
+    textNameBackgroundRGB: textNameBackgroundRGB || '',
+    textRoleBackgroundHEX: textRoleBackgroundHEX || '',
+    textRoleBackgroundRGB: textRoleBackgroundRGB || '',
+    textNameHEX: textNameHEX || "",
+    textNameRGB: textNameRGB || "",
+    textRoleHEX: textRoleHEX || '',
+    textRoleRGB: textRoleRGB || "",
+    firstBackgroundHEX: firstBackgroundHEX || '',
+    firstBackgroundRGB: firstBackgroundRGB || '',
+    secondBackgroundHEX: secondBackgroundHEX || '',
     secondBackgroundRGB: secondBackgroundRGB || '',
-    fontName : fontName || '',
-    firstLogoURL : firstLogoURL || '',
-    secondLogoURL:secondLogoURL || '',
+    fontName: fontName || '',
+    firstLogoURL: firstLogoURL || '',
+    secondLogoURL: secondLogoURL || '',
     ownerId: req.user._id,
   });
   _branding.save();
@@ -133,14 +134,51 @@ exports.getMyBranding = (req, res) => {
 
 exports.getBrandingInfo = (req, res) => {
   const brandingId = req.params.brandingid;
-  Branding.findById(brandingId)
-    .populate("ownerId", "-hash_password")
-    .then((branding) => {
-      res.status(200).json({ success: true, branding });
+
+
+
+  User.findById(req.user._id)
+    .then(user => {
+
+      if ((user.branding.branding1 == brandingId) && (user.accessType.branding1 === false)) {
+        return res.status(400).json({ error: "you are not allowed to use branding 1" })
+      }
+      if ((user.branding.branding2 == brandingId) && (user.accessType.branding2 === false)) {
+        return res.status(400).json({ error: "you are not allowed to use branding 2" })
+      }
+      if ((user.branding.branding3 == brandingId) && (user.accessType.branding3 === false)) {
+        return res.status(400).json({ error: "you are not allowed to use branding 3" })
+      }
+      if ((user.branding.branding4 == brandingId) && (user.accessType.branding4 === false)) {
+        return res.status(400).json({ error: "you are not allowed to use branding 4" })
+      }
+
+      Branding.findById(brandingId)
+        .populate("ownerId", "-hash_password")
+        .then((branding) => {
+          res.status(200).json({ success: true, branding });
+        })
+        .catch((err) => {
+          res.status(400).json({ error: "Something went wrong" });
+        });
+
+
     })
     .catch((err) => {
       res.status(400).json({ error: "Something went wrong" });
     });
+
+
+
+
+
+
+
+
+
+
+
+
 };
 
 exports.editBranding = (req, res) => {
@@ -216,26 +254,55 @@ exports.editBranding = (req, res) => {
     option.secondLogoURL = secondLogoURL;
   }
 
-  console.log(option);
+
 
   if (Object.keys(option).length == 0) {
     return res.status(400).json({ error: "Nothing to update" });
   }
 
-  Branding.findById(brandingId).then((branding) => {
-    if (branding.ownerId == req.user._id) {
-      Branding.findByIdAndUpdate(branding._id, { $set: option }, { new: true })
-        .populate("ownerId", "-hash_password")
-        .then((updated) => {
-          res.status(201).json({ success: true, branding: updated });
-        })
+
+  User.findById(req.user._id)
+    .then(user => {
+
+      if ((user.branding.branding1 == brandingId) && (user.accessType.branding1 === false)) {
+        return res.status(400).json({ error: "you are not allowed to edit branding 1" })
+      }
+      if ((user.branding.branding2 == brandingId) && (user.accessType.branding2 === false)) {
+        return res.status(400).json({ error: "you are not allowed to edit branding 2" })
+      }
+      if ((user.branding.branding3 == brandingId) && (user.accessType.branding3 === false)) {
+        return res.status(400).json({ error: "you are not allowed to edit branding 3" })
+      }
+      if ((user.branding.branding4 == brandingId) && (user.accessType.branding4 === false)) {
+        return res.status(400).json({ error: "you are not allowed to edit branding 4" })
+      }
+
+      Branding.findById(brandingId).then((branding) => {
+        if (branding.ownerId == req.user._id) {
+          Branding.findByIdAndUpdate(branding._id, { $set: option }, { new: true })
+            .populate("ownerId", "-hash_password")
+            .then((updated) => {
+              res.status(201).json({ success: true, branding: updated });
+            })
+            .catch((err) => {
+              res.status(400).json({ error: "Something went wrong" });
+            });
+        } else {
+          res.status(400).json({ error: "Not authorized" });
+        }
+      })
         .catch((err) => {
           res.status(400).json({ error: "Something went wrong" });
         });
-    } else {
-      res.status(400).json({ error: "Not authorized" });
-    }
-  });
+
+
+    })
+    .catch((err) => {
+      res.status(400).json({ error: "Something went wrong" });
+    });
+
+
+
 };
 
 exports.deleteBeanding = (req, res) => {

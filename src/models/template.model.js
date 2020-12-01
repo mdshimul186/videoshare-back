@@ -17,7 +17,7 @@ const templateSchema = new mongoose.Schema(
         title: { type: String, required: true },
         position: { type: Number, required: true },
         value: { type: String, required: true },
-        date: { type: Date, default: Date.now },
+        duration: { type: Number, required: true },
       },
     ],
     
