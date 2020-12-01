@@ -224,11 +224,7 @@ exports.editaccountsettings = (req, res) => {
 
   User.findById(req.user._id).then((user) => {
     if (email && (user.email === email)) {
-      User.findByIdAndUpdate(
-        user._id,
-        { $set: option },
-        { new: true }
-      )
+      User.findByIdAndUpdate(user._id,{ $set: option },{ new: true })
         .select("-hash_password")
         .then((updated) => {
           res.status(200).json({ user: updated, success: true });
@@ -274,6 +270,10 @@ exports.confirmpwd = (req, res) => {
 exports.editPassword = (req, res) => {
   const { currentpassword, newpassword, confirmpassword } = req.body;
 
+  if (!currentpassword) {
+    return res.status(400).json({ error: "please provide current password" });
+  }
+
   if (!newpassword) {
     return res.status(400).json({ error: "please provide new password" });
   } else if (newpassword.length < 6) {
@@ -289,33 +289,10 @@ exports.editPassword = (req, res) => {
   }
 
   User.findById(req.user._id).then((user) => {
-    if (user.hash_password === "") {
-      return bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(newpassword, salt, (err, hash) => {
-          User.findByIdAndUpdate(
-            user._id,
-            { $set: { hash_password: hash } },
-            { new: true }
-          ).then((newuser) => {
-            res.status(200).json({
-              success: true,
-              message: "password changed successfully",
-            });
-          });
-        });
-      });
-    } else {
-      if (!currentpassword) {
-        return res
-          .status(400)
-          .json({ error: "please provide current password" });
-      }
-
+   
       bcrypt.compare(currentpassword, user.hash_password, (err, result) => {
         if (err) {
-          return res
-            .status(400)
-            .json({ error: "something went wrong, try again" });
+          return res.status(400).json({ error: "something went wrong, try again" });
         }
         if (!result) {
           return res.status(400).json({ error: "Password invalid" });
@@ -333,7 +310,6 @@ exports.editPassword = (req, res) => {
           });
         });
       });
-    }
   });
 };
 
@@ -359,6 +335,8 @@ exports.editprofileimage = (req, res) => {
 };
 
 exports.googleAuth = (req, res) => {
+  let password = shortid.generate()
+  const brandingarray =  ['branding1', 'branding2','branding3','branding4']
   client
     .verifyIdToken({
       idToken: req.body.tokenId,
@@ -366,50 +344,130 @@ exports.googleAuth = (req, res) => {
     })
     .then((response) => {
       if (response.payload.email_verified) {
-        User.findOne({ email: response.payload.email }).then((user) => {
-          if (user.approval.isApproved === false) return res.status(400).json({ error:"Your account is not approved yet" });
+        User.findOne({ email: response.payload.email }).then((user) => {         
+          console.log(user)
           if (user) {
+            if (user.approval.isApproved === false) return res.status(400).json({ error:"Your account is not approved yet" });
             const token = jwt.sign({ _id: user._id,role:user.role }, process.env.JWT_SECRET, {
               expiresIn: "1d",
             });
-            const { _id, email, firstName, lastName, role, jobRole } = user;
+            const {  _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture ,createdBy,approval,accessType,resetPassToken,branding } = user;
             //res.cookie("videoshare-token", token, { expiresIn: "1d" });
             res.status(200).json({
               success: true,
               token: "Bearer " + token,
-              user: { _id, firstName, lastName, email, role, jobRole },
+              user: {  _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture ,createdBy,approval,accessType,resetPassToken,branding },
             });
           } else {
             const email = response.payload.email;
 
-            const _user = new User({
-              email,
-            });
+            bcrypt.hash(password, 10, function(err, hash) {
+              const _user = new User({
+                email,
+                hash_password:hash,
+                firstName: "",
+                lastName: "",
+                jobRole: "",
+                role: "user",
+                videoGoal: "",
+                approval: {
+                  isApproved: true,
+                  trxId: ''
+                },
+                accessType: {
+                  branding1: true,
+                  branding2: true,
+                  branding3: true,
+                  branding4: true,
+                  script: true,
+                  template: true,
+                  fullAccess: true
+                },
+                resetPassToken:"",
+                
+              });
 
-            _user.save((error, data) => {
-              if (error) {
-                console.log(error);
-                return res.status(400).json({
-                  error: "Something went wrong",
-                });
-              }
 
-              if (data) {
-                const token = jwt.sign(
-                  { _id: data._id },
-                  process.env.JWT_SECRET,
-                  {
-                    expiresIn: "1d",
-                  }
-                );
-                const { _id, email, firstName, lastName, role, jobRole } = data;
-                //res.cookie("videoshare-token", token, { expiresIn: "1d" });
-                res.status(200).json({
-                  token: "Bearer " + token,
-                  user: { _id, firstName, lastName, email, role, jobRole },
-                });
-              }
+
+
+              _user.save((error, data) => {
+                if (error) {
+                  console.log(error);
+                  return res.status(400).json({
+                    error: "Something went wrong",
+                  });
+                }
+  
+                if (data) {
+
+                  brandingarray.map(b=>{
+                    let _branding = new Branding({
+                      brandingName:b,
+                      ownerId:data._id
+                    })
+                    _branding.save()
+                    .then(br=>{
+                      if(b === 'branding1'){
+                        data.updateOne({$set:{"branding.branding1":br._id}})
+                        .then((b1)=>{
+                            return
+                        })
+                      }
+                      if(b === 'branding2'){
+                        data.updateOne({$set:{"branding.branding2":br._id}})
+                        .then((b2)=>{
+                          return
+                      })
+                        
+                      }
+                      if(b === 'branding3'){
+                        data.updateOne({$set:{"branding.branding3":br._id}})
+                        .then((b3)=>{
+                          return
+                      })
+                      }
+                      if(b === 'branding4'){
+                        data.updateOne({$set:{"branding.branding4":br._id}})
+                        .then((b4)=>{
+                          return
+                      })
+                      }
+                      
+                      
+                    })
+              
+                  })
+
+
+
+
+                  const token = jwt.sign({ _id: data._id, role: data.role },process.env.JWT_SECRET,{expiresIn: "1d",});
+                  const {  _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture ,createdBy,approval,accessType,resetPassToken,branding } = data;
+                  //res.cookie("videoshare-token", token, { expiresIn: "1d" });
+
+                  transporter.sendMail({
+                    from: 'info.videoshare@gmail.com',
+                    to: email,
+                    subject: 'Account created',
+                    html:` <p>Account created successfully.Your email : ${email}, password:${password}</p>`,
+                  }, (err, info) => {
+                    console.log(info);
+                    //console.log(err);
+                    if(err){
+                      return res.status(400).json({error:"something went wrong"})
+                    }
+                    res.status(200).json({
+                      token: "Bearer " + token,
+                      user: {  _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture ,createdBy,approval,accessType,resetPassToken,branding },
+                    });
+                  });                 
+                }
+              })
+              
+
+
             });
+            
           }
         });
       }

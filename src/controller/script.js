@@ -75,22 +75,22 @@ exports.getScriptInfo = (req, res) => {
 };
 
 exports.addSummary = (req, res) => {
-  const { title,description, options } = req.body;
+  const { title, description, options } = req.body;
   const scriptId = req.params.scriptid;
   let _summary = new Summary({
     title,
     description,
-    options:options,
+    options: options,
     scriptId,
   });
   _summary
     .save()
     .then((summary) => {
-      options.map(op=>{
-        summary.updateOne({$push:{options:op}})
-        .then(op2=>{
-          
-        })
+      options.map(op => {
+        summary.updateOne({ $push: { options: op } })
+          .then(op2 => {
+
+          })
       })
 
 
@@ -139,13 +139,13 @@ exports.deleteSummary = (req, res) => {
 };
 
 exports.addTemplate = (req, res) => {
-  const { title,description ,options} = req.body;
+  const { title, description, options } = req.body;
   const scriptId = req.params.scriptid;
   console.log(JSON.stringify(options));
   let _template = new Template({
     title,
     description,
-    options:  options,
+    options: options,
     scriptId,
 
   });
@@ -153,11 +153,11 @@ exports.addTemplate = (req, res) => {
     .save()
     .then((template) => {
 
-      options.map(op=>{
-        template.updateOne({$push:{options:op}})
-        .then(op2=>{
-          
-        })
+      options.map(op => {
+        template.updateOne({ $push: { options: op } })
+          .then(op2 => {
+
+          })
       })
 
 
@@ -229,18 +229,18 @@ exports.deleteScript = (req, res) => {
 };
 
 
-exports.createDefaultTemplate=(req,res)=>{
-  const { title,description, optionTitle, optionPosition, optionValue } = req.body;
+exports.createDefaultTemplate = (req, res) => {
+  const { title, description, optionTitle, optionPosition, optionValue } = req.body;
   let _template = new Template({
     title,
-    description:description || '',
+    description: description || '',
     options: {
       title: optionTitle,
       position: optionPosition,
       value: optionValue,
     },
-    type:"default"
-    
+    type: "default"
+
   });
   _template
     .save()
@@ -261,7 +261,7 @@ exports.createDefaultTemplate=(req,res)=>{
           res.status(400).json({ error: "Something went wrong" });
         });
         */
-       res.status(200).json({ success: true, template });
+      res.status(200).json({ success: true, template });
 
 
     })
@@ -271,35 +271,35 @@ exports.createDefaultTemplate=(req,res)=>{
     });
 }
 
-exports.getAllDefaultTemplate=(req,res)=>{
-  Template.find({type:"default"})
-  .then(template=>{
-    res.status(200).json({ success: true, template });
+exports.getAllDefaultTemplate = (req, res) => {
+  Template.find({ type: "default" })
+    .then(template => {
+      res.status(200).json({ success: true, template });
 
-  })
-  .catch((err) => {
-    res.status(400).json({ error: "Something went wrong" });
-  });
+    })
+    .catch((err) => {
+      res.status(400).json({ error: "Something went wrong" });
+    });
 }
 
-exports.deleteDefaultTemplate=(req,res)=>{
+exports.deleteDefaultTemplate = (req, res) => {
   let templateId = req.params.templateid
   Template.findById(templateId)
-  .then(template=>{
-    if(template.type === 'default'){
-      Template.findByIdAndDelete(templateId)
-      .then(template=>{
-        res.status(200).json({success:true,message:"template deleted successfully"})
-      })
-      .catch((err) => {
-        res.status(400).json({ error: "Something went wrong" });
-      });
-    }else{
-      res.status(400).json({ error: "This not a default template" });
-    }
-  })
-  .catch((err) => {
-    res.status(400).json({ error: "Something went wrong" });
-  });
-  
+    .then(template => {
+      if (template.type === 'default') {
+        Template.findByIdAndDelete(templateId)
+          .then(template => {
+            res.status(200).json({ success: true, message: "template deleted successfully" })
+          })
+          .catch((err) => {
+            res.status(400).json({ error: "Something went wrong" });
+          });
+      } else {
+        res.status(400).json({ error: "This not a default template" });
+      }
+    })
+    .catch((err) => {
+      res.status(400).json({ error: "Something went wrong" });
+    });
+
 }

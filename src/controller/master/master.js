@@ -1,4 +1,5 @@
 const User = require('../../models/user.model')
+const Branding = require('../../models/branding.model')
 const bcrypt = require("bcryptjs");
 let nodemailer = require('nodemailer');
 let aws = require('aws-sdk');
@@ -70,6 +71,8 @@ exports.inviteUser=(req,res)=>{
         }
        
     }
+
+    const brandingarray =  ['branding1', 'branding2','branding3','branding4']
     
 
     User.findOne({ email}).exec(async (error, user) => {
@@ -110,6 +113,44 @@ exports.inviteUser=(req,res)=>{
           }
     
           if (data) {
+
+            brandingarray.map(b=>{
+              let _branding = new Branding({
+                brandingName:b,
+                ownerId:data._id
+              })
+              _branding.save()
+              .then(br=>{
+                if(b === 'branding1'){
+                  data.updateOne({$set:{"branding.branding1":br._id}})
+                  .then((b1)=>{
+                      return
+                  })
+                }
+                if(b === 'branding2'){
+                  data.updateOne({$set:{"branding.branding2":br._id}})
+                  .then((b2)=>{
+                    return
+                })
+                  
+                }
+                if(b === 'branding3'){
+                  data.updateOne({$set:{"branding.branding3":br._id}})
+                  .then((b3)=>{
+                    return
+                })
+                }
+                if(b === 'branding4'){
+                  data.updateOne({$set:{"branding.branding4":br._id}})
+                  .then((b4)=>{
+                    return
+                })
+                }
+                
+                
+              })
+        
+            })
 
             transporter.sendMail({
                 from: 'info.videoshare@gmail.com',
