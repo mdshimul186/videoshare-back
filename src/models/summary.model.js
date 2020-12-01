@@ -23,8 +23,12 @@ const summarySchema = new mongoose.Schema(
     scriptId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Script",
-      required: true,
     },
+    type:{
+      type:String,
+      enum: ["individual", "default"],
+      default: "individual",
+    }
   },
   { timestamps: true }
 );

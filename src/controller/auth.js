@@ -53,7 +53,7 @@ exports.signup = (req, res) => {
         template: false,
         fullAccess: false
       },
-      resetPassToken:""
+      resetPassToken:"",
 
     });
 

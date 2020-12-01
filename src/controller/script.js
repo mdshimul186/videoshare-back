@@ -75,21 +75,25 @@ exports.getScriptInfo = (req, res) => {
 };
 
 exports.addSummary = (req, res) => {
-  const { title,description, optionTitle, optionPosition, optionValue } = req.body;
+  const { title,description, options } = req.body;
   const scriptId = req.params.scriptid;
   let _summary = new Summary({
     title,
     description,
-    options: {
-      title: optionTitle,
-      position: optionPosition,
-      value: optionValue,
-    },
+    options:options,
     scriptId,
   });
   _summary
     .save()
     .then((summary) => {
+      options.map(op=>{
+        summary.updateOne({$push:{options:op}})
+        .then(op2=>{
+          
+        })
+      })
+
+
       Script.findByIdAndUpdate(
         scriptId,
         { $push: { summary: summary._id } },
@@ -102,10 +106,12 @@ exports.addSummary = (req, res) => {
           res.status(200).json({ success: true, script });
         })
         .catch((err) => {
+          console.log(err);
           res.status(400).json({ error: "Something went wrong" });
         });
     })
     .catch((err) => {
+      console.log(err);
       res.status(400).json({ error: "Something went wrong" });
     });
 };
@@ -133,22 +139,28 @@ exports.deleteSummary = (req, res) => {
 };
 
 exports.addTemplate = (req, res) => {
-  const { title,description, optionTitle, optionPosition, optionValue } = req.body;
+  const { title,description ,options} = req.body;
   const scriptId = req.params.scriptid;
+  console.log(JSON.stringify(options));
   let _template = new Template({
     title,
     description,
-    options: {
-      title: optionTitle,
-      position: optionPosition,
-      value: optionValue,
-    },
+    options:  options,
     scriptId,
 
   });
   _template
     .save()
     .then((template) => {
+
+      options.map(op=>{
+        template.updateOne({$push:{options:op}})
+        .then(op2=>{
+          
+        })
+      })
+
+
       Script.findByIdAndUpdate(
         scriptId,
         { $push: { template: template._id } },

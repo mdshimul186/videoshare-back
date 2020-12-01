@@ -20,6 +20,7 @@ const templateSchema = new mongoose.Schema(
         date: { type: Date, default: Date.now },
       },
     ],
+    
     scriptId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Script",

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const Branding = require('./branding.model')
 
 const userSchema = new mongoose.Schema(
   {
@@ -66,10 +67,10 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
     branding:{
-      branding1:{type: mongoose.Schema.Types.ObjectId,ref: "Branding"},
-      branding2:{type: mongoose.Schema.Types.ObjectId,ref: "Branding"},
-      branding3:{type: mongoose.Schema.Types.ObjectId,ref: "Branding"},
-      branding4:{type: mongoose.Schema.Types.ObjectId,ref: "Branding"},
+      branding1:{type: mongoose.Schema.Types.ObjectId,ref: "Branding",default:new Branding({brandingName:"branding1"})},
+      branding2:{type: mongoose.Schema.Types.ObjectId,ref: "Branding",default:new Branding({brandingName:"branding2"})},
+      branding3:{type: mongoose.Schema.Types.ObjectId,ref: "Branding",default:new Branding({brandingName:"branding3"})},
+      branding4:{type: mongoose.Schema.Types.ObjectId,ref: "Branding",default:new Branding({brandingName:"branding4"})},
     }
   },
   { timestamps: true }
