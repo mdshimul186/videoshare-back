@@ -141,7 +141,7 @@ exports.deleteSummary = (req, res) => {
 exports.addTemplate = (req, res) => {
   const { title, description, options } = req.body;
   const scriptId = req.params.scriptid;
-  console.log(JSON.stringify(options));
+ 
   let _template = new Template({
     title,
     description,
@@ -230,38 +230,33 @@ exports.deleteScript = (req, res) => {
 
 
 exports.createDefaultTemplate = (req, res) => {
-  const { title, description, optionTitle, optionPosition, optionValue } = req.body;
+  const { title, description, options } = req.body;
+ 
   let _template = new Template({
     title,
-    description: description || '',
-    options: {
-      title: optionTitle,
-      position: optionPosition,
-      value: optionValue,
-    },
+    description,
     type: "default"
-
   });
   _template
     .save()
     .then((template) => {
-      /*
-      Script.findByIdAndUpdate(
-        scriptId,
-        { $push: { template: template._id } },
-        { new: true }
-      )
-        .populate("ownerId", "-hash_password")
-        .populate("summary")
-        .populate("template")
-        .then((script) => {
-          res.status(200).json({ success: true, script });
-        })
-        .catch((err) => {
-          res.status(400).json({ error: "Something went wrong" });
-        });
-        */
-      res.status(200).json({ success: true, template });
+
+      options.map((op,index) => {
+        Template.findByIdAndUpdate(template._id,{ $push: { options: op },$set:{type:"default"} },{new:true})
+          .then(op2 => {
+            
+              if(index === (options.length-1)){
+                return res.status(200).json({ success: true, template:op2 });
+              }
+          })
+      })
+
+      
+      // Template.findById(template._id)
+      // .then(templatenew=>{
+       
+      // })
+      
 
 
     })
