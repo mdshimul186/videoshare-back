@@ -20,22 +20,27 @@ const videoSchema = new mongoose.Schema(
     fileURL: {
       type: String,
       trim: true,
-      required: true,
+      default: "",
     },
     placeholderImageURL: {
       type: String,
       trim: true,
-      required: true,
+      default: "",
     },
     length: {
       type: String,
       trim: true,
-      required: true,
+      default: "",
     },
     isEffectsApplied: {
       type: Boolean,
       default: false,
     },
+    videoLocalPath: {
+      type: String,
+      trim: true,
+      default: "",
+    }
   },
   { timestamps: true }
 );

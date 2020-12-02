@@ -36,7 +36,16 @@ router.post(
 router.patch(
   "/editvideo/:videoid",
   requireSignin,
-  upload.single("videoThumbnail"),
+  videoUpload.fields([
+    {
+      name: "video",
+      maxCount: 1,
+    },
+    {
+      name: "videoThumbnail",
+      maxCount: 1,
+    },
+  ]),
   editVideo
 );
 

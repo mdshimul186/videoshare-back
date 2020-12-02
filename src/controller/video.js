@@ -13,21 +13,22 @@ aws.config.update({
 exports.createVideo = (req, res) => {
   //console.log(req.files.video[0], req.files.videoThumbnail[0]);
   let fileURL = req.files.video && req.files.video[0].location;
-  let placeholderImageURL =
-    req.files.videoThumbnail && req.files.videoThumbnail[0].location;
-  let { title, description, length, isEffectsApplied } = req.body;
-  if (!fileURL && !placeholderImageURL && !title && !length) {
-    return null;
+  let placeholderImageURL = req.files.videoThumbnail && req.files.videoThumbnail[0].location;
+  let { title, description, length, isEffectsApplied ,videoLocalPath} = req.body;
+  if (!title) {
+    return res.status(400).json({ error: "Title is required" });
   }
+  console.log(fileURL,placeholderImageURL)
 
   let _video = new Video({
     title,
     description: description || "",
-    length,
+    length:length || "",
     isEffectsApplied: isEffectsApplied || false,
-    fileURL,
-    placeholderImageURL,
+    fileURL:fileURL || "",
+    placeholderImageURL:placeholderImageURL || "",
     ownerId: req.user._id,
+    videoLocalPath:videoLocalPath || ""
   });
   _video.save();
   Video.populate(_video, {
@@ -82,8 +83,11 @@ exports.getVideoInfo = (req, res) => {
 
 exports.editVideo = (req, res) => {
   const videoId = req.params.videoid;
-  const { title, description, length, isEffectsApplied } = req.body;
-  const placeholderImageURL = req.file && req.file.location;
+  const { title, description, length, isEffectsApplied ,videoLocalPath} = req.body;
+
+  let fileURL = req.files.video && req.files.video[0].location;
+  let placeholderImageURL = req.files.videoThumbnail && req.files.videoThumbnail[0].location;
+  
   let option = {};
   if (title) {
     option.title = title;
@@ -97,12 +101,20 @@ exports.editVideo = (req, res) => {
   if (placeholderImageURL) {
     option.placeholderImageURL = placeholderImageURL;
   }
+  if (fileURL) {
+    option.fileURL = fileURL;
+  }
+  if (videoLocalPath) {
+    option.videoLocalPath = videoLocalPath;
+  }
   if (isEffectsApplied === false) {
     option.isEffectsApplied = false;
   }
   if (isEffectsApplied) {
     option.isEffectsApplied = true;
   }
+
+
   if (Object.keys(option).length == 0) {
     return res.status(400).json({ error: "Nothing to update" });
   }
