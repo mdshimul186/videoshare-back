@@ -142,18 +142,21 @@ exports.deleteVideo = (req, res) => {
   Video.findById(videoId)
     .then((video) => {
 
-      if(video.fileURL == ''){
-        Video.findByIdAndDelete(video._id)
-        .then((updated) => {
-          res
-            .status(200)
-            .json({ success: true, message: "Video successfully deleted" });
-        })
-        .catch((err) => {
-          res.status(400).json({ error: "Something went wrong" });
-        });
-      }else{
-        if (video.ownerId == req.user._id) {
+
+
+      if (video.ownerId == req.user._id) {
+
+        if(video.fileURL == ''){
+          Video.findByIdAndDelete(video._id)
+            .then((updated) => {
+              res
+                .status(200)
+                .json({ success: true, message: "Video successfully deleted" });
+            })
+            .catch((err) => {
+              res.status(400).json({ error: "Something went wrong" });
+            });
+        }else{
           var params = {
             Bucket: process.env.AWS_BUCKET_NAME,
             Key: video.fileURL.split(".com/")[1],
@@ -176,14 +179,15 @@ exports.deleteVideo = (req, res) => {
                 res.status(400).json({ error: "Something went wrong" });
               });
           });
-        } else {
-          res.status(400).json({ error: "Not authorized" });
         }
+
+
+
+
+      
+      } else {
+        res.status(400).json({ error: "Not authorized" });
       }
-
-
-
-     
     })
     .catch((err) => {
       res.status(400).json({ error: "Something went wrong" });
