@@ -141,32 +141,49 @@ exports.deleteVideo = (req, res) => {
 
   Video.findById(videoId)
     .then((video) => {
-      if (video.ownerId == req.user._id) {
-        var params = {
-          Bucket: process.env.AWS_BUCKET_NAME,
-          Key: video.fileURL.split(".com/")[1],
-        };
 
-        s3.deleteObject(params, function (err, data) {
-          if (err) {
-            console.log(err, err.stack);
-            return res.status(400).json({ error: "Something went wrong" });
-          }
-          // an error occurred
-          console.log(data);
-          Video.findByIdAndDelete(video._id)
-            .then((updated) => {
-              res
-                .status(201)
-                .json({ success: true, message: "Video successfully deleted" });
-            })
-            .catch((err) => {
-              res.status(400).json({ error: "Something went wrong" });
-            });
+      if(video.fileURL == ''){
+        Video.findByIdAndDelete(video._id)
+        .then((updated) => {
+          res
+            .status(200)
+            .json({ success: true, message: "Video successfully deleted" });
+        })
+        .catch((err) => {
+          res.status(400).json({ error: "Something went wrong" });
         });
-      } else {
-        res.status(400).json({ error: "Not authorized" });
+      }else{
+        if (video.ownerId == req.user._id) {
+          var params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: video.fileURL.split(".com/")[1],
+          };
+  
+          s3.deleteObject(params, function (err, data) {
+            // if (err) {
+            //   console.log(err, err.stack);
+            //   return res.status(400).json({ error: "Something went wrong" });
+            // }
+            //an error occurred
+            console.log(data);
+            Video.findByIdAndDelete(video._id)
+              .then((updated) => {
+                res
+                  .status(200)
+                  .json({ success: true, message: "Video successfully deleted" });
+              })
+              .catch((err) => {
+                res.status(400).json({ error: "Something went wrong" });
+              });
+          });
+        } else {
+          res.status(400).json({ error: "Not authorized" });
+        }
       }
+
+
+
+     
     })
     .catch((err) => {
       res.status(400).json({ error: "Something went wrong" });
