@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 let nodemailer = require('nodemailer');
 let aws = require('aws-sdk');
 const Branding = require('../../models/branding.model')
+const validator = require('validator')
 
 // configure AWS SDK
 aws.config.update({
@@ -21,8 +22,8 @@ let transporter = nodemailer.createTransport({
 
 
 exports.createMasterUser=(req,res)=>{
-    const { firstName, lastName, email, password } = req.body;
-console.log(password)
+    const { firstName, lastName, email, password ,organization,contact,service} = req.body;
+    let profilePicture = req.file.location 
     if(!password){
         return res.status(200).json({error:"password reuired"})
     }
@@ -59,7 +60,11 @@ console.log(password)
             template:true,
             fullAccess:true
           },
-          resetPassToken:""  
+          resetPassToken:"",
+          organization:organization||"",
+          contact:contact||"",
+          service:service||"",
+          profilePicture:profilePicture||""
     
         });
     
@@ -112,10 +117,6 @@ console.log(password)
             })
 
 
-
-
-
-
             transporter.sendMail({
                 from: 'info.videoshare@gmail.com',
                 to: data.email,
@@ -140,6 +141,100 @@ console.log(password)
           }
         });
       });
+}
+
+
+
+
+exports.editMasterUser=async(req,res)=>{
+  let userId = req.params.userid
+  const {firstName,lastName,email,password,service,organization,contact,isSuspended} = req.body
+
+  if(!email){
+    return res.status(400).json({error:"Email is required"})
+  }
+  if(validator.isEmail(email) === false){
+    return res.status(400).json({error:"Invalid email"})
+  }
+  if(password && password.length < 8 ){
+    return res.status(400).json({error:"Password should be more then 8 character"})
+  }
+
+  
+
+  let option = {}
+  
+  if(password){
+    const hash_password = await bcrypt.hash(password, 10);
+    option.hash_password = hash_password
+  }
+
+  if(firstName){
+    option.firstName = firstName
+  }
+  if(lastName){
+    option.lastName = lastName
+  }
+  if(service){
+    option.service = service
+  }
+  if(organization){
+    option.organization = organization
+  }
+  if(contact){
+    option.contact = contact
+  }
+  if(isSuspended === true){
+    option.isSuspended = true
+  }
+  if(isSuspended === false){
+    option.isSuspended = false
+  }
+  
+
+  User.findById(userId)
+  .then(user=>{
+    if(user){
+
+      if(user.email === email){
+        User.findByIdAndUpdate(user._id,{$set:option},{new:true})
+        .select("-hash_password")
+        .then(updated=>{
+
+          transporter.sendMail({
+            from: 'info.videoshare@gmail.com',
+            to: user.email,
+            subject: 'account edited successfully',
+            text:` Master user account edited successfully.your email:${email}, password:${password}`,
+          }, (err, info) => {
+            console.log(info);
+            console.log(err);
+            return res.status(200).json({
+              success: true,
+              user:updated
+          })
+          });
+
+
+          
+        })
+        .catch(err=>{
+          return res.status(400).json({
+              error: "Something went wrong"});
+      })
+      }else{
+        return res.status(400).json({error:"You can't change email"})
+      }
+
+     
+
+    }else{
+      return res.status(400).json({error:"User not found"})
+    }
+  })
+
+  
+
 }
 
 

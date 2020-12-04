@@ -12,18 +12,9 @@ exports.validateCreateMasterUser = [
     .withMessage('Valid Email is required'),
     check('password')
     .trim() 
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 character long'),
-    check('confirmPassword') 
-    .trim()
-    .notEmpty()
-    .withMessage('Confirm password is required')
-    .custom(async (confirmPassword, {req}) => { 
-      const password = req.body.password 
-      if(password !== confirmPassword){ 
-        throw new Error('Confirm Passwords must be same') 
-      } 
-    })
+    .isLength({ min: 8 })
+    .withMessage('Password must be at least 8 character long'),
+    
     
 ];
 

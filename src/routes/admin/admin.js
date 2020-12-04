@@ -12,33 +12,35 @@ aws.config.update({
 
 // create Nodemailer SES transporter
 let transporter = nodemailer.createTransport({
-    SES: new aws.SES({
-        apiVersion: '2010-12-01'
-    })
+  SES: new aws.SES({
+    apiVersion: '2010-12-01'
+  })
 });
 
 
 
 const express = require("express");
-const {createMasterUser,getMasterUser,deleteMasterUser} = require("../../controller/admin/admin");
-const { requireSignin,adminMiddleware } = require("../../common-middleware");
+const { createMasterUser, getMasterUser, deleteMasterUser ,editMasterUser} = require("../../controller/admin/admin");
+const { requireSignin, adminMiddleware } = require("../../common-middleware");
 const {
   validateCreateMasterUser,
   isRequestValidated,
 } = require("../../validators/admin");
-//const upload = require("../common-middleware/imageUpload");
+const upload = require("../../common-middleware/imageUpload");
 const router = express.Router();
 
 
 
-router.get('/admin',requireSignin,adminMiddleware,(req,res)=>{
-    console.log("admin")
+router.get('/admin', requireSignin, adminMiddleware, (req, res) => {
+  console.log("admin")
 })
 
 
-router.post('/createmasteruser',requireSignin,adminMiddleware,validateCreateMasterUser,isRequestValidated,createMasterUser)
+router.post('/createmasteruser', requireSignin, adminMiddleware,upload.single("profileimage"), validateCreateMasterUser, isRequestValidated, createMasterUser)
 
-router.get('/getmasteruser',requireSignin,adminMiddleware,getMasterUser)
-router.delete('/deletemasteruser/:userid',requireSignin,adminMiddleware,deleteMasterUser)
+router.patch("/edituser/:userid",requireSignin, adminMiddleware,editMasterUser)
+
+router.get('/getmasteruser', requireSignin, adminMiddleware, getMasterUser)
+router.delete('/deletemasteruser/:userid', requireSignin, adminMiddleware, deleteMasterUser)
 
 module.exports = router;

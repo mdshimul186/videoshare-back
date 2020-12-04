@@ -71,6 +71,22 @@ const userSchema = new mongoose.Schema(
       branding2:{type: mongoose.Schema.Types.ObjectId,ref: "Branding"},
       branding3:{type: mongoose.Schema.Types.ObjectId,ref: "Branding"},
       branding4:{type: mongoose.Schema.Types.ObjectId,ref: "Branding"},
+    },
+    service:{
+      type: String,
+      default: "",
+    },
+    organization:{
+      type: String,
+      default: "",
+    },
+    contact:{
+      type: String,
+      default: "",
+    },
+    isSuspended:{
+      type:Boolean,
+      default:false
     }
   },
   { timestamps: true }

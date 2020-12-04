@@ -154,6 +154,8 @@ exports.signin = (req, res) => {
 
         if (user.approval.isApproved === false) return res.status(400).json({ error:"Your account is not approved yet" });
 
+        if (user.isSuspended === true) return res.status(400).json({ error:"You are suspended" });
+
         const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, {
           expiresIn: "1d",
         });

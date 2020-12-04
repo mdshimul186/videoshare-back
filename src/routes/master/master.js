@@ -1,5 +1,5 @@
 const express = require("express");
-const { inviteUser ,getUserByMaster,deleteUser} = require("../../controller/master/master");
+const { inviteUser ,getUserByMaster,deleteUser,editLocalUser} = require("../../controller/master/master");
 const {
     requireSignin,
     masterUserMiddleware,
@@ -25,6 +25,8 @@ router.post(
     isRequestValidated,
     inviteUser
 );
+
+router.patch("/edituser/:userid",requireSignin, masterUserMiddleware,editLocalUser)
 
 router.get('/getuserbymaster',requireSignin,masterUserMiddleware,getUserByMaster)
 router.delete('/deleteuser/:userid',requireSignin,masterUserMiddleware,deleteUser)
