@@ -23,7 +23,7 @@ let transporter = nodemailer.createTransport({
 
 exports.createMasterUser=(req,res)=>{
     const { firstName, lastName, email, password ,organization,contact,service} = req.body;
-    let profilePicture = req.file.location 
+    let profilePicture = req.file && req.file.location 
     if(!password){
         return res.status(200).json({error:"password reuired"})
     }
