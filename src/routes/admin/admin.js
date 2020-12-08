@@ -20,7 +20,7 @@ let transporter = nodemailer.createTransport({
 
 
 const express = require("express");
-const { createMasterUser, getMasterUser, deleteMasterUser ,editMasterUser} = require("../../controller/admin/admin");
+const { createMasterUser, getMasterUser, deleteMasterUser ,editMasterUser,getPendingUser,approveUser} = require("../../controller/admin/admin");
 const { requireSignin, adminMiddleware } = require("../../common-middleware");
 const {
   validateCreateMasterUser,
@@ -42,5 +42,8 @@ router.patch("/edituser/:userid",requireSignin, adminMiddleware,editMasterUser)
 
 router.get('/getmasteruser', requireSignin, adminMiddleware, getMasterUser)
 router.delete('/deletemasteruser/:userid', requireSignin, adminMiddleware, deleteMasterUser)
+
+router.get('/getpendinguser', requireSignin, adminMiddleware, getPendingUser)
+router.patch('/approve/:userid', requireSignin, adminMiddleware, approveUser)
 
 module.exports = router;

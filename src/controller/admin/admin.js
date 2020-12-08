@@ -23,7 +23,7 @@ let transporter = nodemailer.createTransport({
 
 exports.createMasterUser=(req,res)=>{
     const { firstName, lastName, email, password ,organization,contact,service} = req.body;
-    let profilePicture = req.file && req.file.location 
+    let profilePicture = req.file && req.file.location
     if(!password){
         return res.status(200).json({error:"password reuired"})
     }
@@ -260,7 +260,7 @@ exports.deleteMasterUser=(req,res)=>{
     let userId = req.params.userid
     User.findByIdAndDelete(userId)
     .then(user=>{
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
             message:"Deleted succefully"
           });
@@ -270,4 +270,48 @@ exports.deleteMasterUser=(req,res)=>{
             error: "Something went wrong",
           });
     })
+}
+
+
+exports.getPendingUser=(req,res)=>{
+  User.find({"approval.isApproved":false})
+  .then(user=>{
+    return res.status(200).json({
+      success: true,
+      user
+    })
+    
+  })
+  .catch(err=>{
+    return res.status(400).json({
+        error: "Something went wrong",
+      });
+})
+}
+
+exports.approveUser=(req,res)=>{
+    let userId = req.params.userid
+    User.findById(userId)
+    .then(user=>{
+      if(!user){
+        return res.status(400).json({error:"user not found"})
+      }
+
+      user.updateOne({$set:{"approval.isApproved":true}})
+      .then(updated=>{
+        return res.status(200).json({
+          success: true,
+        })
+      })
+      .catch(err=>{
+        return res.status(400).json({
+            error: "Something went wrong",
+          });
+    })
+    })
+    .catch(err=>{
+      return res.status(400).json({
+          error: "Something went wrong",
+        });
+  })
 }

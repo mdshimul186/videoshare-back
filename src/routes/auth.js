@@ -17,6 +17,7 @@ const {
   validateSignupRequest,
   isRequestValidated,
   validateSigninRequest,
+  validatePassword,
   validateEditEmailRequest,
 } = require("../validators/auth");
 const upload = require("../common-middleware/imageUpload");
@@ -33,7 +34,7 @@ router.patch(
   editaccountsettings
 );
 router.post("/confirmpwd", requireSignin, confirmpwd);
-router.patch("/editpassword", requireSignin, editPassword);
+router.patch("/editpassword", requireSignin,validatePassword,isRequestValidated, editPassword);
 router.put(
   "/editprofileimage",
   requireSignin,
