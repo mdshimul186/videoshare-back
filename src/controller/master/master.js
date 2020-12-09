@@ -104,7 +104,15 @@ exports.inviteUser=(req,res)=>{
         //res.json({_localUser})
 
       //  console.log(_localUser);
-    
+
+
+      User.findById(req.user._id)
+      .then(master=>{
+        if(master.inviteCount <= 0){
+            return res.status(400).json({error:"You have no invites left"})
+        }
+
+
         _localUser.save((error, data) => {
           if (error) {
             console.log(error);
@@ -157,7 +165,7 @@ exports.inviteUser=(req,res)=>{
                 from: 'info.videoshare@gmail.com',
                 to: data.email,
                 subject: 'account invitation',
-                text:` Your are invited. Your email:${data.email}, password:${password}`,
+                text:` Your are invited. Your email:${data.email}, password:${password}. Please login here: ${process.env.CLIENT_URL}/login`,
                // ses: { // optional extra arguments for SendRawEmail
                     //Tags: [{
                      //   Name: 'tag name',
@@ -167,15 +175,29 @@ exports.inviteUser=(req,res)=>{
               }, (err, info) => {
                 console.log(info);
                 console.log(err);
-                return res.status(201).json({
+
+                User.findByIdAndUpdate(master._id,{$inc:{"inviteCount":-1}},{new:true})
+                .select("-hash_password")
+                .then(master2=>{
+                  
+                  return res.status(201).json({
                     success: true,
                     message: "user invited Successfully..!",
-                    user:data
+                    user:data,
+                    master2
                   });
+                })
+                
               });
 
           }
         }); 
+
+      })
+    
+        
+
+
       });
 
      

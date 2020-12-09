@@ -22,11 +22,25 @@ let transporter = nodemailer.createTransport({
 
 
 exports.createMasterUser=(req,res)=>{
-    const { firstName, lastName, email, password ,organization,contact,service} = req.body;
+    const { firstName, lastName, email, password ,organization,contact,service,inviteCount} = req.body;
     let profilePicture = req.file && req.file.location
     if(!password){
         return res.status(200).json({error:"password reuired"})
     }
+    console.log(parseInt(inviteCount))
+    if(inviteCount){
+
+      if(Math.sign(inviteCount) === -1){
+        return res.status(400).json({error: "Invite count should be valid positive integer value"})
+      }
+      if(Math.sign(inviteCount) === -0){
+        return res.status(400).json({error: "Invite count should be valid positive integer value"})
+      }
+      if(Math.sign(inviteCount) === NaN){
+        return res.status(400).json({error: "Invite count should be valid positive integer value"})
+      }
+    }
+    console.log(inviteCount)
     
 
     User.findOne({ email}).exec(async (error, user) => {
@@ -64,7 +78,8 @@ exports.createMasterUser=(req,res)=>{
           organization:organization||"",
           contact:contact||"",
           service:service||"",
-          profilePicture:profilePicture||""
+          profilePicture:profilePicture||"",
+          inviteCount:parseInt(inviteCount)||0
     
         });
     
@@ -121,7 +136,8 @@ exports.createMasterUser=(req,res)=>{
                 from: 'info.videoshare@gmail.com',
                 to: data.email,
                 subject: 'account created',
-                text:` Master user account created successfully.your email:${data.email}, password:${password}`,
+                text:` Master user account created successfully.your email:${data.email}, password:${password}.
+                Please login here: ${process.env.CLIENT_URL}/login`,
                // ses: { // optional extra arguments for SendRawEmail
                     //Tags: [{
                      //   Name: 'tag name',

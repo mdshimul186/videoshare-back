@@ -87,6 +87,10 @@ const userSchema = new mongoose.Schema(
     isSuspended:{
       type:Boolean,
       default:false
+    },
+    inviteCount:{
+      type:Number,
+      default:0
     }
   },
   { timestamps: true }
