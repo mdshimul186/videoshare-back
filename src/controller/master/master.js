@@ -93,7 +93,7 @@ exports.inviteUser=(req,res)=>{
           videoGoal: "",
           createdBy:req.user._id,
           approval:{
-            isApproved:false,
+            isApproved:true,
             trxId
           },
           accessType,

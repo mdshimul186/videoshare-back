@@ -11,7 +11,9 @@ const {
   deleteScript,
   createDefaultTemplate,
   getAllDefaultTemplate,
-  deleteDefaultTemplate
+  deleteDefaultTemplate,
+  createTemplate,
+  createSummary
 } = require("../controller/script");
 const { requireSignin } = require("../common-middleware");
 
@@ -40,5 +42,10 @@ router.delete("/delete/:scriptid", requireSignin, deleteScript);
 router.post('/createdefaulttemplate',requireSignin,createDefaultTemplate)
 router.get('/getalldefaulttemplate',requireSignin,getAllDefaultTemplate)
 router.delete('/deletedefaulttemplate/:templateid',requireSignin,deleteDefaultTemplate)
+
+
+//router.put("/createsummary", requireSignin, createSummary);
+router.post("/createtemplate", requireSignin, createTemplate);
+router.post("/createsummary", requireSignin, createSummary);
 
 module.exports = router;

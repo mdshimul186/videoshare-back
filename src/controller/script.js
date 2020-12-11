@@ -3,7 +3,7 @@ const Summary = require("../models/summary.model");
 const Template = require("../models/template.model");
 
 exports.createScript = (req, res) => {
-  const { title, description, category, note } = req.body;
+  const { title, description, category, note,status } = req.body;
   if (!title) {
     return res.status(400).json({ error: "Title can not be empty" });
   }
@@ -16,12 +16,13 @@ exports.createScript = (req, res) => {
     category,
     note: note || "",
     ownerId: req.user._id,
+    status
   });
-  _script.save();
-  Script.populate(_script, {
-    path: "ownerId",
-    select: "-hash_password",
-  })
+  _script.save()
+  // Script.populate(_script, {
+  //   path: "ownerId",
+  //   select: "-hash_password",
+  // })
     .then((script) => {
       res.status(201).json({ success: true, script });
     })
@@ -116,6 +117,76 @@ exports.addSummary = (req, res) => {
     });
 };
 
+
+
+
+
+exports.createSummary=(req,res)=>{
+  const { title, description, options,status } = req.body;
+ if(!title){
+   return res.status(400).json({error:"title is required"})
+ }
+  let _script = new Script({
+     title,
+     description: description || "",
+     category:"summary",
+     note:"",
+     ownerId: req.user._id,
+     status
+   });
+ 
+   _script.save()
+   .then(script=>{
+     let _summary = new Summary({
+       title,
+       description:description||'',
+       scriptId:script._id,
+   
+     });
+ 
+     _summary
+     .save()
+     .then((summary) => {
+ 
+       options.map(op => {
+        summary.updateOne({ $push: { options: op } })
+           .then(op2 => {
+ 
+           })
+       })
+       
+       Script.findByIdAndUpdate(
+         script._id,
+         { $push: { summary: summary._id } },
+         { new: true }
+       )
+         .populate("ownerId", "-hash_password")
+         .populate("summary")
+         .populate("template")
+         .then((updated) => {
+           res.status(200).json({ success: true, script:updated });
+         })
+         .catch((err) => {
+           res.status(400).json({ error: "Something went wrong" });
+         });
+     })
+     .catch((err) => {
+       res.status(400).json({ error: "Something went wrong" });
+     });
+   })
+ }
+
+
+
+
+
+
+
+
+
+
+
+
 exports.deleteSummary = (req, res) => {
   let scriptId = req.params.scriptid;
   let summaryId = req.params.summaryid;
@@ -160,7 +231,6 @@ exports.addTemplate = (req, res) => {
           })
       })
 
-
       Script.findByIdAndUpdate(
         scriptId,
         { $push: { template: template._id } },
@@ -180,6 +250,76 @@ exports.addTemplate = (req, res) => {
       res.status(400).json({ error: "Something went wrong" });
     });
 };
+
+
+
+
+
+exports.createTemplate=(req,res)=>{
+ const { title, description, options,status } = req.body;
+ if(!title){
+  return res.status(400).json({error:"title is required"})
+}
+ let _script = new Script({
+    title,
+    description: description || "",
+    category:"template",
+    note:"",
+    ownerId: req.user._id,
+    status
+  });
+
+  _script.save()
+  .then(script=>{
+    let _template = new Template({
+      title,
+      description:description||'',
+      scriptId:script._id,
+  
+    });
+
+    _template
+    .save()
+    .then((template) => {
+
+      options.map(op => {
+        template.updateOne({ $push: { options: op } })
+          .then(op2 => {
+
+          })
+      })
+      
+      Script.findByIdAndUpdate(
+        script._id,
+        { $push: { template: template._id } },
+        { new: true }
+      )
+        .populate("ownerId", "-hash_password")
+        .populate("summary")
+        .populate("template")
+        .then((updated) => {
+          res.status(200).json({ success: true, script:updated });
+        })
+        .catch((err) => {
+          res.status(400).json({ error: "Something went wrong" });
+        });
+    })
+    .catch((err) => {
+      res.status(400).json({ error: "Something went wrong" });
+    });
+  })
+}
+
+
+
+
+
+
+
+
+
+
+
 
 exports.deleteTemplate = (req, res) => {
   let scriptId = req.params.scriptid;

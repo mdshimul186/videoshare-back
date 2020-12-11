@@ -19,13 +19,18 @@ const scriptSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      trim: true,
+      enum: ["template", "script","summary"],
       required: true,
     },
     note: {
       type: String,
       trim: true,
       default: "",
+    },
+    status: {
+      type: String,
+      enum: ["draft", "saved"],
+      default: "saved",
     },
     template: [{ type: mongoose.Schema.Types.ObjectId, ref: "Template" }],
     summary: [{ type: mongoose.Schema.Types.ObjectId, ref: "Summary" }],
