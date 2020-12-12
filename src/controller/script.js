@@ -192,13 +192,9 @@ exports.deleteSummary = (req, res) => {
   let summaryId = req.params.summaryid;
   Summary.findByIdAndDelete(summaryId)
     .then((deleted) => {
-      Script.findByIdAndUpdate(
-        scriptId,
-        { $pull: { summary: summaryId } },
-        { new: true }
-      )
+      Script.findByIdAndDelete(scriptId,)
         .then((script) => {
-          res.status(200).json({ success: true, script });
+          res.status(200).json({ success: true});
         })
         .catch((err) => {
           res.status(400).json({ error: "Something went wrong" });
@@ -281,7 +277,6 @@ exports.createTemplate=(req,res)=>{
     _template
     .save()
     .then((template) => {
-
       options.map(op => {
         template.updateOne({ $push: { options: op } })
           .then(op2 => {
@@ -314,7 +309,54 @@ exports.createTemplate=(req,res)=>{
 
 
 
+exports.editTemplate=(req,res)=>{
+  let scriptId = req.params.scriptid;
+  let templateId = req.params.templateid;
 
+  const { title, description, options,status } = req.body; 
+
+  if(!scriptId && !templateId){
+    return res.status(400).json({error:"all params are required"})
+  }
+  if(!title){
+    return res.status(400).json({error:"title is required"})
+  }
+  if(!options){
+    return res.status(400).json({error:"options are required"})
+  }
+
+  let templatedata= {
+    title,
+    description:description||"",
+
+  }
+
+  Template.findByIdAndUpdate(templateId,{$set:{title,options:[]}})
+  .then(template=>{
+    options.map(op => {
+      template.updateOne({ $push: { options: op } })
+        .then(op2 => {
+
+        })
+    })
+    Script.findByIdAndUpdate(
+      scriptId,
+      { $set: { template: template._id , title} },
+      { new: true }
+    )
+      .populate("ownerId", "-hash_password")
+      .populate("summary")
+      .populate("template")
+      .then((updated) => {
+        res.status(200).json({ success: true, script:updated });
+      })
+      .catch((err) => {
+        res.status(400).json({ error: "Something went wrong" });
+      });
+
+    
+  })
+}
 
 
 
@@ -326,13 +368,9 @@ exports.deleteTemplate = (req, res) => {
   let templateId = req.params.templateid;
   Template.findByIdAndDelete(templateId)
     .then((deleted) => {
-      Script.findByIdAndUpdate(
-        scriptId,
-        { $pull: { template: templateId } },
-        { new: true }
-      )
+      Script.findByIdAndDelete(scriptId)
         .then((script) => {
-          res.status(200).json({ success: true, script });
+          res.status(200).json({ success: true });
         })
         .catch((err) => {
           res.status(400).json({ error: "Something went wrong" });
@@ -342,6 +380,8 @@ exports.deleteTemplate = (req, res) => {
       res.status(400).json({ error: "Something went wrong" });
     });
 };
+
+
 
 exports.deleteScript = (req, res) => {
   const scriptId = req.params.scriptid;
