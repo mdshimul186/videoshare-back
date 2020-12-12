@@ -3,17 +3,15 @@ const Summary = require("../models/summary.model");
 const Template = require("../models/template.model");
 
 exports.createScript = (req, res) => {
-  const { title, description, category, note,status } = req.body;
+  const { title, description, note,status } = req.body;
   if (!title) {
     return res.status(400).json({ error: "Title can not be empty" });
   }
-  if (!category) {
-    return res.status(400).json({ error: "category can not be empty" });
-  }
+
   let _script = new Script({
     title,
     description: description || "",
-    category,
+    category:"script",
     note: note || "",
     ownerId: req.user._id,
     status
@@ -132,7 +130,7 @@ exports.createSummary=(req,res)=>{
      category:"summary",
      note:"",
      ownerId: req.user._id,
-     status
+     status:status||'saved'
    });
  
    _script.save()
@@ -262,7 +260,7 @@ exports.createTemplate=(req,res)=>{
     category:"template",
     note:"",
     ownerId: req.user._id,
-    status
+    status:status || ''
   });
 
   _script.save()
