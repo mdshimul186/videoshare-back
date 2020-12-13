@@ -18,9 +18,9 @@ aws.config.update({
 
 // create Nodemailer SES transporter
 let transporter = nodemailer.createTransport({
-    SES: new aws.SES({
-        apiVersion: '2010-12-01'
-    })
+  SES: new aws.SES({
+    apiVersion: '2010-12-01'
+  })
 });
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -34,22 +34,22 @@ exports.signup = (req, res) => {
 
     const { email, password } = req.body;
     const hash_password = await bcrypt.hash(password, 10);
+      //currently there will be 4 branding
+    const brandingarray = ['branding1', 'branding2', 'branding3', 'branding4']
 
-    const brandingarray =  ['branding1', 'branding2','branding3','branding4']
-
-/*
-    brandingarray.map(b=>{
-      let _branding = new Branding({
-        brandingName:b
-      })
-      _branding.save()
-      .then(br=>{
-        console.log(br);
-        return branding ={ [b]: br._id}
-      })
-
-    })
-*/
+    /*
+        brandingarray.map(b=>{
+          let _branding = new Branding({
+            brandingName:b
+          })
+          _branding.save()
+          .then(br=>{
+            console.log(br);
+            return branding ={ [b]: br._id}
+          })
+    
+        })
+    */
 
 
     const _user = new User({
@@ -73,11 +73,11 @@ exports.signup = (req, res) => {
         template: true,
         fullAccess: true
       },
-      resetPassToken:"",
-      
+      resetPassToken: "",
+
 
     });
-    
+
     //console.log(test("branding1"));
 
     _user.save((error, data) => {
@@ -90,42 +90,43 @@ exports.signup = (req, res) => {
 
       if (data) {
 
-        brandingarray.map(b=>{
+        //create 4 branding manually and set the branding id to user
+        brandingarray.map(b => {
           let _branding = new Branding({
-            brandingName:b,
-            ownerId:data._id
+            brandingName: b,
+            ownerId: data._id
           })
           _branding.save()
-          .then(br=>{
-            if(b === 'branding1'){
-              data.updateOne({$set:{"branding.branding1":br._id}})
-              .then((b1)=>{
-                  return
-              })
-            }
-            if(b === 'branding2'){
-              data.updateOne({$set:{"branding.branding2":br._id}})
-              .then((b2)=>{
-                return
+            .then(br => {
+              if (b === 'branding1') {
+                data.updateOne({ $set: { "branding.branding1": br._id } })
+                  .then((b1) => {
+                    return
+                  })
+              }
+              if (b === 'branding2') {
+                data.updateOne({ $set: { "branding.branding2": br._id } })
+                  .then((b2) => {
+                    return
+                  })
+
+              }
+              if (b === 'branding3') {
+                data.updateOne({ $set: { "branding.branding3": br._id } })
+                  .then((b3) => {
+                    return
+                  })
+              }
+              if (b === 'branding4') {
+                data.updateOne({ $set: { "branding.branding4": br._id } })
+                  .then((b4) => {
+                    return
+                  })
+              }
+
+
             })
-              
-            }
-            if(b === 'branding3'){
-              data.updateOne({$set:{"branding.branding3":br._id}})
-              .then((b3)=>{
-                return
-            })
-            }
-            if(b === 'branding4'){
-              data.updateOne({$set:{"branding.branding4":br._id}})
-              .then((b4)=>{
-                return
-            })
-            }
-            
-            
-          })
-    
+
         })
 
         return res.status(201).json({
@@ -140,7 +141,7 @@ exports.signup = (req, res) => {
 exports.signin = (req, res) => {
   User.findOne({ email: req.body.email }).exec((error, user) => {
     if (error) return res.status(400).json({ error });
-    
+
     if (user) {
       bcrypt.compare(req.body.password, user.hash_password, (err, result) => {
         if (err) {
@@ -152,19 +153,19 @@ exports.signin = (req, res) => {
           return res.status(400).json({ error: "invalid credentials" });
         }
 
-        if (user.approval.isApproved === false) return res.status(400).json({ error:"Your account is not approved yet" });
+        if (user.approval.isApproved === false) return res.status(400).json({ error: "Your account is not approved yet" });
 
-        if (user.isSuspended === true) return res.status(400).json({ error:"You are suspended" });
+        if (user.isSuspended === true) return res.status(400).json({ error: "You are suspended" });
 
         const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, {
           expiresIn: "1d",
         });
-        const {  _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture ,createdBy,approval,accessType,resetPassToken,branding } = user;
+        const { _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture, createdBy, approval, accessType, resetPassToken, branding } = user;
         //res.cookie("videoshare-token", token, { expiresIn: "1d" });
         res.status(200).json({
           success: true,
           token: "Bearer " + token,
-          user: { _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture ,createdBy,approval,accessType,resetPassToken,branding},
+          user: { _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture, createdBy, approval, accessType, resetPassToken, branding },
         });
       });
     } else {
@@ -226,7 +227,7 @@ exports.editaccountsettings = (req, res) => {
 
   User.findById(req.user._id).then((user) => {
     if (email && (user.email === email)) {
-      User.findByIdAndUpdate(user._id,{ $set: option },{ new: true })
+      User.findByIdAndUpdate(user._id, { $set: option }, { new: true })
         .select("-hash_password")
         .then((updated) => {
           res.status(200).json({ user: updated, success: true });
@@ -291,27 +292,27 @@ exports.editPassword = (req, res) => {
   }
 
   User.findById(req.user._id).then((user) => {
-   
-      bcrypt.compare(currentpassword, user.hash_password, (err, result) => {
-        if (err) {
-          return res.status(400).json({ error: "something went wrong, try again" });
-        }
-        if (!result) {
-          return res.status(400).json({ error: "Password invalid" });
-        }
 
-        bcrypt.genSalt(10, (err, salt) => {
-          bcrypt.hash(newpassword, salt, (err, hash) => {
-            User.findByIdAndUpdate(
-              user._id,
-              { $set: { hash_password: hash } },
-              { new: true }
-            ).then((newuser) => {
-              res.status(200).json({ message: "password changed successfuly" });
-            });
+    bcrypt.compare(currentpassword, user.hash_password, (err, result) => {
+      if (err) {
+        return res.status(400).json({ error: "something went wrong, try again" });
+      }
+      if (!result) {
+        return res.status(400).json({ error: "Password invalid" });
+      }
+
+      bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(newpassword, salt, (err, hash) => {
+          User.findByIdAndUpdate(
+            user._id,
+            { $set: { hash_password: hash } },
+            { new: true }
+          ).then((newuser) => {
+            res.status(200).json({ message: "password changed successfuly" });
           });
         });
       });
+    });
   });
 };
 
@@ -338,7 +339,7 @@ exports.editprofileimage = (req, res) => {
 
 exports.googleAuth = (req, res) => {
   let password = shortid.generate()
-  const brandingarray =  ['branding1', 'branding2','branding3','branding4']
+  const brandingarray = ['branding1', 'branding2', 'branding3', 'branding4']
   client
     .verifyIdToken({
       idToken: req.body.tokenId,
@@ -346,27 +347,28 @@ exports.googleAuth = (req, res) => {
     })
     .then((response) => {
       if (response.payload.email_verified) {
-        User.findOne({ email: response.payload.email }).then((user) => {         
+        //if user email is already in database, let him/her login ,otherwise create a new user and set a random password and send the password via email
+        User.findOne({ email: response.payload.email }).then((user) => {
           console.log(user)
           if (user) {
-            if (user.approval.isApproved === false) return res.status(400).json({ error:"Your account is not approved yet" });
-            const token = jwt.sign({ _id: user._id,role:user.role }, process.env.JWT_SECRET, {
+            if (user.approval.isApproved === false) return res.status(400).json({ error: "Your account is not approved yet" });
+            const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, {
               expiresIn: "1d",
             });
-            const {  _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture ,createdBy,approval,accessType,resetPassToken,branding } = user;
+            const { _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture, createdBy, approval, accessType, resetPassToken, branding } = user;
             //res.cookie("videoshare-token", token, { expiresIn: "1d" });
             res.status(200).json({
               success: true,
               token: "Bearer " + token,
-              user: {  _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture ,createdBy,approval,accessType,resetPassToken,branding },
+              user: { _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture, createdBy, approval, accessType, resetPassToken, branding },
             });
           } else {
             const email = response.payload.email;
 
-            bcrypt.hash(password, 10, function(err, hash) {
+            bcrypt.hash(password, 10, function (err, hash) {
               const _user = new User({
                 email,
-                hash_password:hash,
+                hash_password: hash,
                 firstName: "",
                 lastName: "",
                 jobRole: "",
@@ -385,8 +387,8 @@ exports.googleAuth = (req, res) => {
                   template: true,
                   fullAccess: true
                 },
-                resetPassToken:"",
-                
+                resetPassToken: "",
+
               });
 
 
@@ -399,77 +401,77 @@ exports.googleAuth = (req, res) => {
                     error: "Something went wrong",
                   });
                 }
-  
+
                 if (data) {
 
-                  brandingarray.map(b=>{
+                  brandingarray.map(b => {
                     let _branding = new Branding({
-                      brandingName:b,
-                      ownerId:data._id
+                      brandingName: b,
+                      ownerId: data._id
                     })
                     _branding.save()
-                    .then(br=>{
-                      if(b === 'branding1'){
-                        data.updateOne({$set:{"branding.branding1":br._id}})
-                        .then((b1)=>{
-                            return
-                        })
-                      }
-                      if(b === 'branding2'){
-                        data.updateOne({$set:{"branding.branding2":br._id}})
-                        .then((b2)=>{
-                          return
+                      .then(br => {
+                        if (b === 'branding1') {
+                          data.updateOne({ $set: { "branding.branding1": br._id } })
+                            .then((b1) => {
+                              return
+                            })
+                        }
+                        if (b === 'branding2') {
+                          data.updateOne({ $set: { "branding.branding2": br._id } })
+                            .then((b2) => {
+                              return
+                            })
+
+                        }
+                        if (b === 'branding3') {
+                          data.updateOne({ $set: { "branding.branding3": br._id } })
+                            .then((b3) => {
+                              return
+                            })
+                        }
+                        if (b === 'branding4') {
+                          data.updateOne({ $set: { "branding.branding4": br._id } })
+                            .then((b4) => {
+                              return
+                            })
+                        }
+
+
                       })
-                        
-                      }
-                      if(b === 'branding3'){
-                        data.updateOne({$set:{"branding.branding3":br._id}})
-                        .then((b3)=>{
-                          return
-                      })
-                      }
-                      if(b === 'branding4'){
-                        data.updateOne({$set:{"branding.branding4":br._id}})
-                        .then((b4)=>{
-                          return
-                      })
-                      }
-                      
-                      
-                    })
-              
+
                   })
 
 
 
 
-                  const token = jwt.sign({ _id: data._id, role: data.role },process.env.JWT_SECRET,{expiresIn: "1d",});
-                  const {  _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture ,createdBy,approval,accessType,resetPassToken,branding } = data;
+                  const token = jwt.sign({ _id: data._id, role: data.role }, process.env.JWT_SECRET, { expiresIn: "1d", });
+                  const { _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture, createdBy, approval, accessType, resetPassToken, branding } = data;
                   //res.cookie("videoshare-token", token, { expiresIn: "1d" });
 
                   transporter.sendMail({
                     from: 'info.videoshare@gmail.com',
                     to: email,
                     subject: 'Account created',
-                    html:` <p>Account created successfully.Your email : ${email}, password:${password}</p>`,
+                    html: ` <p>Account created successfully.Your email : ${email}, password:${password}</p>`,
                   }, (err, info) => {
                     console.log(info);
                     //console.log(err);
-                    if(err){
-                      return res.status(400).json({error:"something went wrong"})
+                    if (err) {
+                      return res.status(400).json({ error: "something went wrong" })
                     }
                     res.status(200).json({
                       token: "Bearer " + token,
-                      user: {  _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture ,createdBy,approval,accessType,resetPassToken,branding },
+                      user: { _id, firstName, lastName, email, role, jobRole, videoGoal, profilePicture, createdBy, approval, accessType, resetPassToken, branding },
                     });
-                  });                 
+                  });
                 }
               })
-              
+
 
 
             });
-            
+
           }
         });
       }
@@ -477,39 +479,39 @@ exports.googleAuth = (req, res) => {
 };
 
 
-exports.forgotPassword=(req,res)=>{
-  const {email} = req.body
-  User.findOne({email})
-  .then(user=>{
-    if(!user){
-      return res.status(404).json({error:"No user found with this email"})
-    }
-    jwt.sign({ _id: user._id, email: user.email }, process.env.JWT_SECRET_RESET_PASSWORD, {expiresIn: "20m"},(err,token)=>{
-      if(err){
-        return res.status(400).json({error:"something went wrong"})
+exports.forgotPassword = (req, res) => {
+  const { email } = req.body
+  User.findOne({ email })
+    .then(user => {
+      if (!user) {
+        return res.status(404).json({ error: "No user found with this email" })
       }
-      User.findByIdAndUpdate(user._id,{$set:{resetPassToken:token}})
-      .then(usernext=>{
-        transporter.sendMail({
-          from: 'info.videoshare@gmail.com',
-          to: usernext.email,
-          subject: 'Reset Password',
-          html:` <p>Click this <a href="${process.env.CLIENT_URL}/resetpassword?token=${token}">Link</a> and follow the instruction. Token validity 20 minute</p>`,
-        }, (err, info) => {
-          console.log(info);
-          //console.log(err);
-          if(err){
-            return res.status(400).json({error:"something went wrong"})
-          }
-          return res.status(200).json({
-              success: true,
-              message: "email send succesfully",
+      jwt.sign({ _id: user._id, email: user.email }, process.env.JWT_SECRET_RESET_PASSWORD, { expiresIn: "20m" }, (err, token) => {
+        if (err) {
+          return res.status(400).json({ error: "something went wrong" })
+        }
+        User.findByIdAndUpdate(user._id, { $set: { resetPassToken: token } })
+          .then(usernext => {
+            transporter.sendMail({
+              from: 'info.videoshare@gmail.com',
+              to: usernext.email,
+              subject: 'Reset Password',
+              html: ` <p>Click this <a href="${process.env.CLIENT_URL}/resetpassword?token=${token}">Link</a> and follow the instruction. Token validity 20 minute</p>`,
+            }, (err, info) => {
+              console.log(info);
+              //console.log(err);
+              if (err) {
+                return res.status(400).json({ error: "something went wrong" })
+              }
+              return res.status(200).json({
+                success: true,
+                message: "email send succesfully",
+              });
             });
-        });
-      })
-    });
+          })
+      });
 
-    
 
-  })
+
+    })
 }

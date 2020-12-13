@@ -1,5 +1,5 @@
 const express = require("express");
-const { inviteUser ,getUserByMaster,deleteUser,editLocalUser} = require("../../controller/master/master");
+const { inviteUser, getUserByMaster, deleteUser, editLocalUser } = require("../../controller/master/master");
 const {
     requireSignin,
     masterUserMiddleware,
@@ -17,18 +17,11 @@ router.get("/master", requireSignin, masterUserMiddleware, (req, res) => {
     console.log("master");
 });
 
-router.post(
-    "/inviteuser",
-    requireSignin,
-    masterUserMiddleware,
-    validateInviteUser,
-    isRequestValidated,
-    inviteUser
-);
+router.post("/inviteuser",requireSignin,masterUserMiddleware,validateInviteUser,isRequestValidated,inviteUser);
 
-router.patch("/edituser/:userid",requireSignin, masterUserMiddleware,editLocalUser)
+router.patch("/edituser/:userid", requireSignin, masterUserMiddleware, editLocalUser)
 
-router.get('/getuserbymaster',requireSignin,masterUserMiddleware,getUserByMaster)
-router.delete('/deleteuser/:userid',requireSignin,masterUserMiddleware,deleteUser)
+router.get('/getuserbymaster', requireSignin, masterUserMiddleware, getUserByMaster)
+router.delete('/deleteuser/:userid', requireSignin, masterUserMiddleware, deleteUser)
 
 module.exports = router;

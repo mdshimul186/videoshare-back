@@ -3,7 +3,7 @@ const Summary = require("../models/summary.model");
 const Template = require("../models/template.model");
 
 exports.createScript = (req, res) => {
-  const { title, description, note,status } = req.body;
+  const { title, description, note, status } = req.body;
   if (!title) {
     return res.status(400).json({ error: "Title can not be empty" });
   }
@@ -11,16 +11,16 @@ exports.createScript = (req, res) => {
   let _script = new Script({
     title,
     description: description || "",
-    category:"script",
+    category: "script",
     note: note || "",
     ownerId: req.user._id,
     status
   });
   _script.save()
-  // Script.populate(_script, {
-  //   path: "ownerId",
-  //   select: "-hash_password",
-  // })
+    // Script.populate(_script, {
+    //   path: "ownerId",
+    //   select: "-hash_password",
+    // })
     .then((script) => {
       res.status(201).json({ success: true, script });
     })
@@ -119,65 +119,60 @@ exports.addSummary = (req, res) => {
 
 
 
-exports.createSummary=(req,res)=>{
-  const { title, description, options,status } = req.body;
- if(!title){
-   return res.status(400).json({error:"title is required"})
- }
+exports.createSummary = (req, res) => {
+  const { title, description, options, status } = req.body;
+  if (!title) {
+    return res.status(400).json({ error: "title is required" })
+  }
   let _script = new Script({
-     title,
-     description: description || "",
-     category:"summary",
-     note:"",
-     ownerId: req.user._id,
-     status:status||'saved'
-   });
- 
-   _script.save()
-   .then(script=>{
-     let _summary = new Summary({
-       title,
-       description:description||'',
-       scriptId:script._id,
-   
-     });
- 
-     _summary
-     .save()
-     .then((summary) => {
- 
-       options.map(op => {
-        summary.updateOne({ $push: { options: op } })
-           .then(op2 => {
- 
-           })
-       })
-       
-       Script.findByIdAndUpdate(
-         script._id,
-         { $push: { summary: summary._id } },
-         { new: true }
-       )
-         .populate("ownerId", "-hash_password")
-         .populate("summary")
-         .populate("template")
-         .then((updated) => {
-           res.status(200).json({ success: true, script:updated });
-         })
-         .catch((err) => {
-           res.status(400).json({ error: "Something went wrong" });
-         });
-     })
-     .catch((err) => {
-       res.status(400).json({ error: "Something went wrong" });
-     });
-   })
- }
+    title,
+    description: description || "",
+    category: "summary",
+    note: "",
+    ownerId: req.user._id,
+    status: status || 'saved'
+  });
 
+  _script.save()
+    .then(script => {
+      let _summary = new Summary({
+        title,
+        description: description || '',
+        scriptId: script._id,
 
+      });
 
+      _summary
+        .save()
+        .then((summary) => {
 
+          options.map(op => {
+            summary.updateOne({ $push: { options: op } })
+              .then(op2 => {
 
+              })
+          })
+
+          Script.findByIdAndUpdate(
+            script._id,
+            { $push: { summary: summary._id } },
+            { new: true }
+          )
+            .populate("ownerId", "-hash_password")
+            .populate("summary")
+            .populate("template")
+            .then((updated) => {
+              res.status(200).json({ success: true, script: updated });
+            })
+            .catch((err) => {
+              res.status(400).json({ error: "Something went wrong" });
+            });
+        })
+        .catch((err) => {
+          res.status(400).json({ error: "Something went wrong" });
+        });
+    })
+}
 
 
 
@@ -192,7 +187,7 @@ exports.deleteSummary = (req, res) => {
     .then((deleted) => {
       Script.findByIdAndDelete(scriptId,)
         .then((script) => {
-          res.status(200).json({ success: true});
+          res.status(200).json({ success: true });
         })
         .catch((err) => {
           res.status(400).json({ error: "Something went wrong" });
@@ -206,7 +201,7 @@ exports.deleteSummary = (req, res) => {
 exports.addTemplate = (req, res) => {
   const { title, description, options } = req.body;
   const scriptId = req.params.scriptid;
- 
+
   let _template = new Template({
     title,
     description,
@@ -249,111 +244,111 @@ exports.addTemplate = (req, res) => {
 
 
 
-exports.createTemplate=(req,res)=>{
- const { title, description, options,status } = req.body;
- if(!title){
-  return res.status(400).json({error:"title is required"})
-}
- let _script = new Script({
+exports.createTemplate = (req, res) => {
+  const { title, description, options, status } = req.body;
+  if (!title) {
+    return res.status(400).json({ error: "title is required" })
+  }
+  let _script = new Script({
     title,
     description: description || "",
-    category:"template",
-    note:"",
+    category: "template",
+    note: "",
     ownerId: req.user._id,
-    status:status || ''
+    status: status || ''
   });
 
   _script.save()
-  .then(script=>{
-    let _template = new Template({
-      title,
-      description:description||'',
-      scriptId:script._id,
-  
-    });
+    .then(script => {
+      let _template = new Template({
+        title,
+        description: description || '',
+        scriptId: script._id,
 
-    _template
-    .save()
-    .then((template) => {
+      });
+
+      _template
+        .save()
+        .then((template) => {
+          options.map(op => {
+            template.updateOne({ $push: { options: op } })
+              .then(op2 => {
+
+              })
+          })
+
+          Script.findByIdAndUpdate(
+            script._id,
+            { $push: { template: template._id } },
+            { new: true }
+          )
+            .populate("ownerId", "-hash_password")
+            .populate("summary")
+            .populate("template")
+            .then((updated) => {
+              res.status(200).json({ success: true, script: updated });
+            })
+            .catch((err) => {
+              res.status(400).json({ error: "Something went wrong" });
+            });
+        })
+        .catch((err) => {
+          res.status(400).json({ error: "Something went wrong" });
+        });
+    })
+}
+
+
+
+
+
+exports.editTemplate = (req, res) => {
+  let scriptId = req.params.scriptid;
+  let templateId = req.params.templateid;
+
+  const { title, description, options, status } = req.body;
+
+  if (!scriptId && !templateId) {
+    return res.status(400).json({ error: "all params are required" })
+  }
+  if (!title) {
+    return res.status(400).json({ error: "title is required" })
+  }
+  if (!options) {
+    return res.status(400).json({ error: "options are required" })
+  }
+
+  let templatedata = {
+    title,
+    description: description || "",
+
+  }
+
+  Template.findByIdAndUpdate(templateId, { $set: { title, options: [] } })
+    .then(template => {
       options.map(op => {
         template.updateOne({ $push: { options: op } })
           .then(op2 => {
 
           })
       })
-      
       Script.findByIdAndUpdate(
-        script._id,
-        { $push: { template: template._id } },
+        scriptId,
+        { $set: { template: template._id, title } },
         { new: true }
       )
         .populate("ownerId", "-hash_password")
         .populate("summary")
         .populate("template")
         .then((updated) => {
-          res.status(200).json({ success: true, script:updated });
+          res.status(200).json({ success: true, script: updated });
         })
         .catch((err) => {
           res.status(400).json({ error: "Something went wrong" });
         });
+
+
     })
-    .catch((err) => {
-      res.status(400).json({ error: "Something went wrong" });
-    });
-  })
-}
-
-
-
-
-
-exports.editTemplate=(req,res)=>{
-  let scriptId = req.params.scriptid;
-  let templateId = req.params.templateid;
-
-  const { title, description, options,status } = req.body; 
-
-  if(!scriptId && !templateId){
-    return res.status(400).json({error:"all params are required"})
-  }
-  if(!title){
-    return res.status(400).json({error:"title is required"})
-  }
-  if(!options){
-    return res.status(400).json({error:"options are required"})
-  }
-
-  let templatedata= {
-    title,
-    description:description||"",
-
-  }
-
-  Template.findByIdAndUpdate(templateId,{$set:{title,options:[]}})
-  .then(template=>{
-    options.map(op => {
-      template.updateOne({ $push: { options: op } })
-        .then(op2 => {
-
-        })
-    })
-    Script.findByIdAndUpdate(
-      scriptId,
-      { $set: { template: template._id , title} },
-      { new: true }
-    )
-      .populate("ownerId", "-hash_password")
-      .populate("summary")
-      .populate("template")
-      .then((updated) => {
-        res.status(200).json({ success: true, script:updated });
-      })
-      .catch((err) => {
-        res.status(400).json({ error: "Something went wrong" });
-      });
-
-    
-  })
 }
 
 
@@ -409,7 +404,7 @@ exports.deleteScript = (req, res) => {
 
 exports.createDefaultTemplate = (req, res) => {
   const { title, description, options } = req.body;
- 
+
   let _template = new Template({
     title,
     description,
@@ -419,22 +414,22 @@ exports.createDefaultTemplate = (req, res) => {
     .save()
     .then((template) => {
 
-      options.map((op,index) => {
-        Template.findByIdAndUpdate(template._id,{ $push: { options: op },$set:{type:"default"} },{new:true})
+      options.map((op, index) => {
+        Template.findByIdAndUpdate(template._id, { $push: { options: op }, $set: { type: "default" } }, { new: true })
           .then(op2 => {
-            
-              if(index === (options.length-1)){
-                return res.status(200).json({ success: true, template:op2 });
-              }
+
+            if (index === (options.length - 1)) {
+              return res.status(200).json({ success: true, template: op2 });
+            }
           })
       })
 
-      
+
       // Template.findById(template._id)
       // .then(templatenew=>{
-       
+
       // })
-      
+
 
 
     })
