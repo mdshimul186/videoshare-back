@@ -4,6 +4,7 @@ const User = require("../models/user.model");
 exports.createBranding = (req, res) => {
   let firstLogoURL = req.files.firstLogo && req.files.firstLogo[0].location;
   let secondLogoURL = req.files.secondLogo && req.files.secondLogo[0].location;
+  let thirdLogoURL = req.files.secondLogo && req.files.thirdLogo[0].location;
   const {
     brandingName,
     textNameBackgroundHEX,
@@ -92,6 +93,7 @@ exports.createBranding = (req, res) => {
     fontName: fontName || '',
     firstLogoURL: firstLogoURL || '',
     secondLogoURL: secondLogoURL || '',
+    thirdLogoURL:thirdLogoURL||"",
     ownerId: req.user._id,
   });
   _branding.save();
@@ -185,6 +187,7 @@ exports.editBranding = (req, res) => {
   const brandingId = req.params.brandingid;
   let firstLogoURL = req.files.firstLogo && req.files.firstLogo[0].location;
   let secondLogoURL = req.files.secondLogo && req.files.secondLogo[0].location;
+  let thirdLogoURL = req.files.thirdLogo && req.files.thirdLogo[0].location;
   const {
     brandingName,
     textNameBackgroundHEX,
@@ -201,6 +204,9 @@ exports.editBranding = (req, res) => {
     secondBackgroundRGB,
     fontName,
   } = req.body;
+
+
+  console.log("from: "+ brandingName)
 
   let option = {};
 
@@ -253,6 +259,9 @@ exports.editBranding = (req, res) => {
   if (secondLogoURL) {
     option.secondLogoURL = secondLogoURL;
   }
+  if (thirdLogoURL) {
+    option.thirdLogoURL = thirdLogoURL;
+  }
 
 
 
@@ -285,6 +294,7 @@ exports.editBranding = (req, res) => {
               res.status(201).json({ success: true, branding: updated });
             })
             .catch((err) => {
+              // console.log(err)
               res.status(400).json({ error: "Something went wrong" });
             });
         } else {
@@ -292,12 +302,14 @@ exports.editBranding = (req, res) => {
         }
       })
         .catch((err) => {
+          // console.log(err)
           res.status(400).json({ error: "Something went wrong" });
         });
 
 
     })
     .catch((err) => {
+      // console.log(err)
       res.status(400).json({ error: "Something went wrong" });
     });
 

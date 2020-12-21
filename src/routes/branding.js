@@ -27,6 +27,10 @@ router.post(
       name: "secondLogo",
       maxCount: 1,
     },
+    {
+      name: "thirdLogo",
+      maxCount: 1,
+    },
   ]),
   createBranding
 );
@@ -40,6 +44,10 @@ router.patch(
     },
     {
       name: "secondLogo",
+      maxCount: 1,
+    },
+    {
+      name: "thirdLogo",
       maxCount: 1,
     },
   ]),

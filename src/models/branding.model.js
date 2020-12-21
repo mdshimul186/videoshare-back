@@ -17,6 +17,11 @@ const brandingSchema = new mongoose.Schema(
       trim: true,
       default: ""
     },
+    thirdLogoURL: {
+      type: String,
+      trim: true,
+      default: ""
+    },
     textNameBackgroundHEX: {
       type: String,
       trim: true,
