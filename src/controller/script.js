@@ -25,10 +25,33 @@ exports.createScript = (req, res) => {
       res.status(201).json({ success: true, script });
     })
     .catch((err) => {
-      console.log(err);
+     
       res.status(400).json({ error: "something went wrong" });
     });
 };
+
+exports.editScript=(req,res)=>{
+  let scriptId = req.params.scriptid
+  const { title, description, note, status } = req.body;
+  if (!title) {
+    return res.status(400).json({ error: "Title can not be empty" });
+  }
+  let data = {
+    title,
+    description: description || "",
+    note: note || "",
+    status
+  };
+
+  Script.findByIdAndUpdate(scriptId,{$set:data},{new:true})
+  .then((script) => {
+    res.status(201).json({ success: true, script });
+  })
+  .catch((err) => {
+    
+    res.status(400).json({ error: "something went wrong" });
+  });
+}
 
 exports.getScript = (req, res) => {
   const ownerId = req.params.ownerid;
@@ -105,12 +128,12 @@ exports.addSummary = (req, res) => {
           res.status(200).json({ success: true, script });
         })
         .catch((err) => {
-          console.log(err);
+          
           res.status(400).json({ error: "Something went wrong" });
         });
     })
     .catch((err) => {
-      console.log(err);
+      
       res.status(400).json({ error: "Something went wrong" });
     });
 };
@@ -334,7 +357,56 @@ exports.editTemplate = (req, res) => {
       })
       Script.findByIdAndUpdate(
         scriptId,
-        { $set: { template: template._id, title } },
+        { $set: { template: template._id, title,status:status||'saved' } },
+        { new: true }
+      )
+        .populate("ownerId", "-hash_password")
+        .populate("summary")
+        .populate("template")
+        .then((updated) => {
+          res.status(200).json({ success: true, script: updated });
+        })
+        .catch((err) => {
+          res.status(400).json({ error: "Something went wrong" });
+        });
+
+
+    })
+}
+
+
+
+
+exports.editSummary = (req, res) => {
+  let scriptId = req.params.scriptid;
+  let summaryId = req.params.summaryid;
+
+  const { title, description, options, status } = req.body;
+  if (!title) {
+    return res.status(400).json({ error: "title is required" })
+  }
+  if(!scriptId || !summaryId){
+    return res.status(400).json({ error: "script and summary id are required" })
+  }
+  let data ={
+    title,
+    description: description || "",
+    ownerId: req.user._id,
+    status: status || 'saved'
+  };
+
+
+  Summary.findByIdAndUpdate(summaryId, { $set: { title, options: [] } })
+    .then(summary => {
+      options.map(op => {
+        summary.updateOne({ $push: { options: op } })
+          .then(op2 => {
+
+          })
+      })
+      Script.findByIdAndUpdate(
+        scriptId,
+        { $set: { summary: summary._id, title,status:status||'saved' } },
         { new: true }
       )
         .populate("ownerId", "-hash_password")
@@ -434,7 +506,7 @@ exports.createDefaultTemplate = (req, res) => {
 
     })
     .catch((err) => {
-      console.log(err);
+      
       res.status(400).json({ error: "Something went wrong" });
     });
 }

@@ -82,7 +82,7 @@ exports.signup = (req, res) => {
 
     _user.save((error, data) => {
       if (error) {
-        console.log(error);
+       
         return res.status(400).json({
           error: "Something went wrong",
         });
@@ -349,7 +349,7 @@ exports.googleAuth = (req, res) => {
       if (response.payload.email_verified) {
         //if user email is already in database, let him/her login ,otherwise create a new user and set a random password and send the password via email
         User.findOne({ email: response.payload.email }).then((user) => {
-          console.log(user)
+          
           if (user) {
             if (user.approval.isApproved === false) return res.status(400).json({ error: "Your account is not approved yet" });
             const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, {
@@ -396,7 +396,7 @@ exports.googleAuth = (req, res) => {
 
               _user.save((error, data) => {
                 if (error) {
-                  console.log(error);
+                  
                   return res.status(400).json({
                     error: "Something went wrong",
                   });
@@ -455,7 +455,7 @@ exports.googleAuth = (req, res) => {
                     subject: 'Account created',
                     html: ` <p>Account created successfully.Your email : ${email}, password:${password}</p>`,
                   }, (err, info) => {
-                    console.log(info);
+                    
                     //console.log(err);
                     if (err) {
                       return res.status(400).json({ error: "something went wrong" })
@@ -498,7 +498,7 @@ exports.forgotPassword = (req, res) => {
               subject: 'Reset Password',
               html: ` <p>Click this <a href="${process.env.CLIENT_URL}/resetpassword?token=${token}">Link</a> and follow the instruction. Token validity 20 minute</p>`,
             }, (err, info) => {
-              console.log(info);
+             
               //console.log(err);
               if (err) {
                 return res.status(400).json({ error: "something went wrong" })

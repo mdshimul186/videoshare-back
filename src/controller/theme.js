@@ -89,7 +89,7 @@ exports.editTheme = (req, res) => {
   }
 
   Theme.findById(themeId).then((theme) => {
-    console.log(theme.ownerId == req.user._id);
+    
     if (theme.ownerId == req.user._id) {
       Theme.findByIdAndUpdate(theme._id, { $set: option }, { new: true })
         .then((updated) => {

@@ -206,7 +206,7 @@ exports.editBranding = (req, res) => {
   } = req.body;
 
 
-  console.log("from: "+ brandingName)
+  
 
   let option = {};
 

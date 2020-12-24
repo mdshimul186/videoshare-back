@@ -18,7 +18,7 @@ exports.createVideo = (req, res) => {
   if (!title) {
     return res.status(400).json({ error: "Title is required" });
   }
-  console.log(fileURL,placeholderImageURL)
+
 
   let _video = new Video({
     title,
@@ -39,7 +39,7 @@ exports.createVideo = (req, res) => {
       res.status(201).json({ success: true, video });
     })
     .catch((err) => {
-      console.log(err);
+      
       res.status(400).json({ error: "something went wrong" });
     });
 };
@@ -168,7 +168,7 @@ exports.deleteVideo = (req, res) => {
             //   return res.status(400).json({ error: "Something went wrong" });
             // }
             //an error occurred
-            console.log(data);
+           
             Video.findByIdAndDelete(video._id)
               .then((updated) => {
                 res

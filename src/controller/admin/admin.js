@@ -88,7 +88,7 @@ exports.createMasterUser = (req, res) => {
 
     _masterUser.save((error, data) => {
       if (error) {
-        console.log(error);
+        
         return res.status(400).json({
           error: "Something went wrong",
         });
@@ -149,8 +149,7 @@ exports.createMasterUser = (req, res) => {
           // }]
           //}
         }, (err, info) => {
-          console.log(info);
-          console.log(err);
+          
           return res.status(201).json({
             success: true,
             message: "Master user created Successfully..!",
@@ -226,8 +225,7 @@ exports.editMasterUser = async (req, res) => {
                 subject: 'account edited successfully',
                 text: ` Master user account edited successfully.your email:${email}, password:${password}`,
               }, (err, info) => {
-                console.log(info);
-                console.log(err);
+               
                 return res.status(200).json({
                   success: true,
                   user: updated

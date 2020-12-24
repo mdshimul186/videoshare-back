@@ -116,7 +116,7 @@ exports.inviteUser = (req, res) => {
 
         _localUser.save((error, data) => {
           if (error) {
-            console.log(error);
+            
             return res.status(400).json({
               error: "Something went wrong",
             });
@@ -172,8 +172,7 @@ exports.inviteUser = (req, res) => {
               // }]
               //}
             }, (err, info) => {
-              console.log(info);
-              console.log(err);
+              
 
               //decrease invite count value b 1 from master user
               User.findByIdAndUpdate(master._id, { $inc: { "inviteCount": -1 } }, { new: true })
@@ -324,8 +323,7 @@ exports.editLocalUser = async (req, res) => {
                 subject: 'account edited successfully',
                 text: ` Local user account edited successfully.your email:${email}, password:${password}`,
               }, (err, info) => {
-                console.log(info);
-                console.log(err);
+                
                 return res.status(200).json({
                   success: true,
                   user: updated

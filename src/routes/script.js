@@ -14,7 +14,9 @@ const {
   deleteDefaultTemplate,
   createTemplate,
   createSummary,
-  editTemplate
+  editTemplate,
+  editScript,
+  editSummary
 } = require("../controller/script");
 const { requireSignin } = require("../common-middleware");
 
@@ -25,6 +27,7 @@ router.get("/getscript/:ownerid", getScript);
 router.get("/getmyscript", requireSignin, getMyScript);
 router.get("/getscriptinfo/:scriptid", getScriptInfo);
 router.post("/createscript", requireSignin, createScript);
+router.post("/editScript/:scriptid", requireSignin, editScript);
 router.put("/addsummary/:scriptid", requireSignin, addSummary);
 router.put("/addtemplate/:scriptid", requireSignin, addTemplate);
 router.patch(
@@ -48,6 +51,7 @@ router.delete('/deletedefaulttemplate/:templateid',requireSignin,deleteDefaultTe
 //router.put("/createsummary", requireSignin, createSummary);
 router.post("/createtemplate", requireSignin, createTemplate);
 router.patch("/edittemplate/:scriptid/:templateid", requireSignin, editTemplate);
+router.patch("/editsummary/:scriptid/:summaryid", requireSignin, editSummary);
 router.post("/createsummary", requireSignin, createSummary);
 
 module.exports = router;
